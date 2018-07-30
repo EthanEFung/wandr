@@ -4,7 +4,7 @@
   "description": "Log your browsing minutes",
   "permissions": ["tabs", "storage", "declarativeContent"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["Timer.js", "background.js"],
     "persistent": false
   },
   "browser_action": {
