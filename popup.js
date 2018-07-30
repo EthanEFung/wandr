@@ -1,7 +1,5 @@
 const SECONDS_IN_A_DAY = 24 * 60 * 60;
 const SECONDS_IN_AN_AVERAGE_WORK_DAY = 8 * 60 * 60;
-const $submit = document.querySelector('button[type="submit"]');
-const $input = document.querySelector('input');
 
 document.addEventListener('DOMContentLoaded', function() {
   chrome.storage.local.get('browserTimer', renderBrowserTimer);
@@ -9,10 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
-$submit.addEventListener('click', submitDomain);
+
 document.addEventListener('keyup', e => e.key === 'Enter' && submitDomain(e));
-
-
 
 function renderPopup() {
   chrome.storage.local.get(['browserTimer', 'fbTimer'], function(result) {
@@ -55,7 +51,3 @@ function renderFbTimer(result){
   document.getElementById('fbTime').textContent = `${time.hours}:${time.minutes}:${time.seconds}`;
 }
 
-function submitDomain(e) {
-  const value = document.querySelector('input').value;
-  document.querySelector('input').value = '';  
-}
