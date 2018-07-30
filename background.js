@@ -45,27 +45,54 @@ class Timer {
 }
 
 // timers
-let broswerTimer;
+let browserTimer;
 let fbTimer;
 
-chrome.runtime.onInstalled.addListener(function() {
+chrome.runtime.onInstalled.addListener(initialize);
+chrome.runtime.onStartup.addListener(setTimers);
+
+function initialize() {
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
   browserTimer = new Timer('browser');
-  browserTimer.start();
   fbTimer = new Timer('fb');
+  setHandlers();
+  browserTimer.start();
+}
 
+function setTimers(){
+  chrome.storage.local.get(['browserTimer', 'fbTimer'], function(result){
+    browserTimer = new Timer('browser', {
+      hours: result.browserTimer.hours,
+      minutes: result.browserTimer.minutes,
+      seconds: result.browserTimer.seconds
+    });
+    if (result.fbTimer) {
+      fbTimer = new Timer('fb', {
+        hours: result.fbTimer.hours,
+        minutes: result.fbTimer.minutes,
+        seconds: result.fbTimer.seconds
+      });
+    } else {
+      fbTimer = new Timer('fb');
+    }
+    setHandlers();
+    browserTimer.start();
+  });
+}
+
+function setHandlers() {
   chrome.windows.onCreated.addListener(resumeBrowserTimer);
-  chrome.windows.onRemoved.addListener(pauseAll([browserTimer, fbTimer]));
+  chrome.windows.onRemoved.addListener(pauseAll);
 
   chrome.tabs.onUpdated.addListener(validateUsage(/facebook/, fbTimer));
   chrome.tabs.onActivated.addListener(updateTimer(/facebook/, fbTimer));
 
   chrome.storage.onChanged.addListener(updateToolTip);
-});
+}
 
-function pauseAll(timers) {
-  return function() {
+function pauseAll() {
+   const timers = [browserTimer, fbTimer];
     chrome.windows.getAll({}, function(windows) {
       if (windows.length === 0) {
         timers.forEach(timer => {
@@ -74,7 +101,6 @@ function pauseAll(timers) {
         });
       }
     });
-  }
 }
 
 function resumeBrowserTimer() {
@@ -85,52 +111,39 @@ function resumeBrowserTimer() {
         browserTimer.start();
       });
     }
-    const tabs = [];
-    windows.forEach((window, i) => {
-      chrome.tabs.query({}, function(tabs) {
-        console.log(tabs);
-      })
-    })
-  })
+  });
 }
 
 function updateToolTip() {
   const {hours, minutes, seconds} = browserTimer;
-    const time = {
-      hours: hours < 10 ? `0${hours}` : hours,
-      minutes: minutes < 10 ? `0${minutes}` : minutes,
-      seconds: seconds < 10 ? `0${seconds}`: seconds,
-    }
-    const formattedTime = `${time.hours}:${time.minutes}:${time.seconds}`
-    chrome.browserAction.setTitle({
-      title: formattedTime
-    });
+  const time = {
+    hours: hours < 10 ? `0${hours}` : "" + hours,
+    minutes: minutes < 10 ? `0${minutes}` : "" + minutes,
+    seconds: seconds < 10 ? `0${seconds}`: "" + seconds,
+  }
+  const formattedTime = `${time.hours}:${time.minutes}:${time.seconds}`
+  chrome.browserAction.setTitle({
+    title: formattedTime
+  });
 }
 
 function validateUsage(regex, timer) {
-  return function (tabId, changedInfo, tab) {
-    if (
-      changedInfo.status === "complete" &&
-      regex.test(tab.url)
-    ) {
-      chrome.tabs.query({}, function(tabs) {
-        if (userStartsBrowsing(regex, tabs)) {
-          timer.start();
-        }
-      });
-    }
+  return function(tabId, changedInfo, tab) {
+    changedInfo.status === "complete" &&
+    regex.test(tab.url) &&
+    !timer.isActive &&
+    timer.start();
   }
-
-}
-
-function userStartsBrowsing(regex, tabs) {
-  return tabs.filter(tab => regex.test(tab.url)).length === 1;
 }
 
 function updateTimer(regex, timer) {
   return function(activeInfo) {
     chrome.tabs.get(activeInfo.tabId, function(tab) {
-      (regex.test(tab.url) && !timer.isActive) ? timer.start() : timer.stop();
+      if (regex.test(tab.url)) {
+        !timer.isActive && timer.start();
+      } else {
+        timer.stop();
+      }
     });
   }
 }
