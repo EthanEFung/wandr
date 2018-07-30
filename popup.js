@@ -3,6 +3,7 @@ const SECONDS_IN_AN_AVERAGE_WORK_DAY = 8 * 60 * 60;
 
 document.addEventListener('DOMContentLoaded', function() {
   chrome.storage.local.get('browserTimer', renderBrowserTimer);
+  chrome.storage.local.get('fbTimer', renderFbTimer);
 });
 
 chrome.storage.onChanged.addListener(renderPopup);
@@ -36,7 +37,7 @@ function renderBrowserTimer(result) {
 }
 
 function renderFbTimer(result){
-  let hours =  minutes = seconds = 0;
+  let hours = minutes = seconds = 0;
   if (result.fbTimer) {
     const {fbTimer} = result;
     hours = fbTimer.hours;
