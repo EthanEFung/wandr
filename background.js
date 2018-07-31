@@ -41,15 +41,32 @@ function setBrowserTimerHandlers() {
 }
 
 function setTimerHandlers(regex, timer) {
+  chrome.windows.onFocusChanged.addListener(function(windowId){
+    if (windowId === -1) return;
+    chrome.windows.get(Number(windowId), {populate: true}, function(window) {
+      const {tabs} = window;
+      for (let tab of tabs) {
+        if (tab.active) {
+          regex.test(tab.url) ? !timer.isActive && timer.start() : timer.stop();
+        }
+      }
+    })
+  })
+
   chrome.tabs.onUpdated.addListener(validateUsage(regex, timer));
   chrome.tabs.onActivated.addListener(updateTimer(regex, timer));
 }
 
 function startBrowserTimer(){
+  let count = 0;
   const listener = setInterval(function() {
+    count++;
     if (browserTimer) {
       browserTimer.start();
       clearInterval(listener); 
+    }
+    if (count > 50) {
+      throw new Error('browser Timer could not be set');
     }
   }, 0);
 }
