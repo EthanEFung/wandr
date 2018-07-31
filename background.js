@@ -4,31 +4,30 @@ let fbTimer;
 
 chrome.runtime.onInstalled.addListener(initialize);
 chrome.runtime.onStartup.addListener(setTimers);
+chrome.runtime.onStartup.addListener(startBrowserTimer);
 
 function initialize() {
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
-  browserTimer = new Timer('browser');
   setTimers();
-  browserTimer.start();
+  startBrowserTimer();
 }
 
 function setTimers(){
   chrome.storage.local.get(['browserTimer', 'fbTimer'], function(result){
     browserTimer = setTimer('browser', result.browserTimer);
     fbTimer = setTimer('fb', result.fbTimer);
-    
     setBrowserTimerHandlers();
     setTimerHandlers(/facebook/, fbTimer);
   });
 }
 
-function setTimer(name, timerHistory) {
+function setTimer(name, timerHistory=false) {
   if (timerHistory) {
     return new Timer(name, {
-      hours: result.browserTimer.hours,
-      minutes: result.browserTimer.minutes,
-      seconds: result.browserTimer.seconds
+      hours: timerHistory.hours,
+      minutes: timerHistory.minutes,
+      seconds: timerHistory.seconds
     });
   } else {
     return new Timer(name);
@@ -44,6 +43,15 @@ function setBrowserTimerHandlers() {
 function setTimerHandlers(regex, timer) {
   chrome.tabs.onUpdated.addListener(validateUsage(regex, timer));
   chrome.tabs.onActivated.addListener(updateTimer(regex, timer));
+}
+
+function startBrowserTimer(){
+  const listener = setInterval(function() {
+    if (browserTimer) {
+      browserTimer.start();
+      clearInterval(listener); 
+    }
+  }, 0);
 }
 
 function pauseAll() {
