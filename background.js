@@ -1,4 +1,3 @@
-// timers
 let browserTimer;
 let fbTimer;
 
@@ -66,7 +65,7 @@ function startBrowserTimer(){
       clearInterval(listener); 
     }
     if (count > 50) {
-      throw new Error('browser Timer could not be set');
+      throw new Error('Browser Timer could not be set');
     }
   }, 0);
 }
