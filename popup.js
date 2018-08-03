@@ -51,6 +51,7 @@ function addDomain(e) {
   e.preventDefault();
   const $domain = document.createElement('li');
   const $input = document.createElement('input');
+  $input.setAttribute('class', 'addTimerDomain');
   $input.setAttribute('required', true);
   $input.setAttribute('placeholder', 'Timer Domain');
   $input.setAttribute('autocomplete', 'off');
@@ -73,4 +74,30 @@ function addDomain(e) {
 
 function addTimer(e) {
   e.stopPropagation();
+  const timer = {};
+  timer.action = 'ADD_TIMER';
+  timer.name = document.querySelector('#addTimerName').value;
+  timer.domains = [];
+
+  const $domains = document.getElementsByClassName('addTimerDomain');
+  let hasEmptyInputs = false;
+  if (timer.name === '') {
+    hasEmptyInputs = true;
+  }
+  for (let $domain of $domains) {
+    if ($domain.value === '') {
+      hasEmptyInputs = true;
+      break;
+    } else {
+      timer.domains.push($domain.value);
+    }
+  }
+  if (hasEmptyInputs) {
+    return;
+  } else {
+    e.preventDefault();
+    chrome.runtime.sendMessage(timer, function(response) {
+      console.log('hey a response', response);
+    })
+  }
 }
