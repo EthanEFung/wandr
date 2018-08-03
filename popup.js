@@ -3,10 +3,11 @@ const timerSelectors = ['browserTimer', 'fbTimer'];
 chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
-document.body.addEventListener('DOMContentLoaded', e => e.stopPropagation() && renderPopup(), false);
-document.body.querySelector('#initTimer').addEventListener('click', revealAddTimerForm, false);
+document.body.addEventListener('DOMContentLoaded', renderPopup, false);
+document.body.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
 document.body.querySelector('#addDomainInput').addEventListener('click', addDomain, false);
 document.body.querySelector('#submitTimer').addEventListener('click', addTimer, false);
+document.body.querySelector('#cancelTimer').addEventListener('click', toggleAddTimerForm, false);
 
 function renderPopup() {
   chrome.storage.local.get(null, 
@@ -30,7 +31,7 @@ function renderTimer(selector, result) {
     `${time.hours}:${time.minutes}:${time.seconds}`;
 }
 
-function revealAddTimerForm(e) {
+function toggleAddTimerForm(e) {
   e.stopPropagation();
   e.preventDefault();
   
@@ -50,7 +51,8 @@ function addDomain(e) {
   e.preventDefault();
   const $domain = document.createElement('li');
   const $input = document.createElement('input');
-  
+  $input.setAttribute('required', true);
+  $input.setAttribute('placeholder', 'Timer Domain');
   
   $domain.append($input, $cancelFactory());
   $domain.setAttribute('class', 'timerDomain');
@@ -72,4 +74,3 @@ function addTimer(e) {
   e.stopPropagation();
   e.preventDefault();
 }
-

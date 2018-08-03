@@ -21,18 +21,22 @@
       <span id="fbTimer"></span>
     </li>
   </ul>
-  
   <button id="initTimer">Add Timer</button>
   <form id="addTimerForm" hidden>
     <header>Add Timer:</header>
     <div id="addTimerNameContainer">
-      <input id="addTimerName" type="text" placeholder="Timer Name">
+      <input id="addTimerName" type="text" placeholder="Timer Name" autocomplete="off">
     </div>
     <div id="submitTimerDomainContainer">
-      <button id="addDomainInput" type="button">Add Domain</button>
-      <ul id="timerDomains"></ul>
+      <ul id="timerDomains">
+        <li class="timerDomain">
+          <input type="text" required placeholder="Timer Domain">
+        </li>
+      </ul>
+      <button id="addDomainInput" type="button">Add Another Domain</button>
     </div>
     <button id="submitTimer" type="submit">Add Timer</button>
+    <button id="cancelTimer">Cancel</button>
   </form>
   <script src="popup.js"></script>
 </body>
