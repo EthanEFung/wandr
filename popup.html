@@ -13,7 +13,7 @@
   <ul id="timers">
     <header><h2>Timers</h2></header>
     <li>
-      <label for="time">Total Browsing Time:</label for="browserTimer">
+      <label for="browserTimer">Total Browsing Time:</label>
       <span id="browserTimer"></span>
     </li>
     <li>
@@ -25,15 +25,26 @@
   <form id="addTimerForm" hidden>
     <header>Add Timer:</header>
     <div id="addTimerNameContainer">
-      <input id="addTimerName" type="text" placeholder="Timer Name" autocomplete="off">
+      <input 
+        id="addTimerName" 
+        type="text" 
+        placeholder="Timer Name" 
+        autocomplete="off"
+      >
     </div>
     <div id="submitTimerDomainContainer">
       <ul id="timerDomains">
         <li class="timerDomain">
-          <input type="text" required placeholder="Timer Domain">
+          <input 
+            type="text" 
+            required 
+            placeholder="Timer Domain"
+          >
         </li>
       </ul>
-      <button id="addDomainInput" type="button">Add Another Domain</button>
+      <button id="addDomainInput" type="button">
+        Add Another Domain
+      </button>
     </div>
     <button id="submitTimer" type="submit">Add Timer</button>
     <button id="cancelTimer">Cancel</button>
