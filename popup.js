@@ -53,6 +53,7 @@ function addDomain(e) {
   const $input = document.createElement('input');
   $input.setAttribute('required', true);
   $input.setAttribute('placeholder', 'Timer Domain');
+  $input.setAttribute('autocomplete', 'off');
   
   $domain.append($input, $cancelFactory());
   $domain.setAttribute('class', 'timerDomain');
