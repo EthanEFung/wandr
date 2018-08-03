@@ -3,11 +3,11 @@ const timerSelectors = ['browserTimer', 'fbTimer'];
 chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
-document.body.addEventListener('DOMContentLoaded', renderPopup, false);
-document.body.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
-document.body.querySelector('#addDomainInput').addEventListener('click', addDomain, false);
-document.body.querySelector('#submitTimer').addEventListener('click', addTimer, false);
-document.body.querySelector('#cancelTimer').addEventListener('click', toggleAddTimerForm, false);
+document.addEventListener('DOMContentLoaded', renderPopup, false);
+document.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
+document.querySelector('#addDomainInput').addEventListener('click', addDomain, false);
+document.querySelector('#submitTimer').addEventListener('click', addTimer, false);
+document.querySelector('#cancelTimer').addEventListener('click', toggleAddTimerForm, false);
 
 function renderPopup() {
   chrome.storage.local.get(null, 
@@ -72,5 +72,4 @@ function addDomain(e) {
 
 function addTimer(e) {
   e.stopPropagation();
-  e.preventDefault();
 }
