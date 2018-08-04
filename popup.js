@@ -11,9 +11,7 @@ function renderPopup() {
   chrome.storage.local.get(null, 
     result => {
       clearDOMTimers();
-      for (let timer in result) {
-        renderTimer(result[timer]);
-      }
+      renderTimers(result);
     }
   );
 }
@@ -25,6 +23,12 @@ function clearDOMTimers() {
   } 
 }
 
+function renderTimers(timers) {
+  for (let timer in timers) {
+    renderTimer(timers[timer]);
+  }
+}
+
 function renderTimer(timer) {
   const $timer = document.createElement('li');
   $timer.setAttribute('class', 'timer');
@@ -34,7 +38,7 @@ function renderTimer(timer) {
 
   const $label = document.createElement('label')
   $label.setAttribute('for', timer.name);
-  $label.textContent = timer.name + ":";
+  $label.textContent = timer.name + ": ";
 
   $timer.append($label, $time);
 
@@ -120,9 +124,6 @@ function addTimer(e) {
     return;
   } else {
     e.preventDefault();
-    chrome.runtime.sendMessage(timer, function(response) {
-      console.log('new timer set', response);
-      renderPopup();
-    });
+    chrome.runtime.sendMessage(timer, renderPopup);
   }
 }
