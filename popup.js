@@ -1,5 +1,3 @@
-const timerSelectors = ['browserTimer', 'fbTimer'];
-
 chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
@@ -11,24 +9,50 @@ document.querySelector('#cancelTimer').addEventListener('click', toggleAddTimerF
 
 function renderPopup() {
   chrome.storage.local.get(null, 
-    result => timerSelectors.forEach($timer => renderTimer($timer, result))
+    result => {
+      clearDOMTimers();
+      for (let timer in result) {
+        renderTimer(result[timer]);
+      }
+    }
   );
 }
 
-function renderTimer(selector, result) {
+function clearDOMTimers() {
+  const $timers = document.querySelector('#timers');
+  while ($timers.firstChild) {
+    $timers.removeChild($timers.firstChild);
+  } 
+}
+
+function renderTimer(timer) {
+  const $timer = document.createElement('li');
+  $timer.setAttribute('class', 'timer');
+
+  const $time = document.createElement('span');
+  $time.setAttribute('id', timer.name);
+
+  const $label = document.createElement('label')
+  $label.setAttribute('for', timer.name);
+  $label.textContent = timer.name + ":";
+
+  $timer.append($label, $time);
+
   let hours = minutes = seconds = 0;
-  if (result[selector]) {
-    hours = result[selector].hours;
-    minutes = result[selector].minutes;
-    seconds = result[selector].seconds;
+  if (timer) {
+    hours = timer.hours;
+    minutes = timer.minutes;
+    seconds = timer.seconds;
   }
   const time = {
     hours: hours < 10 ? `0${hours}` : hours,
     minutes: minutes < 10 ? `0${minutes}` : minutes,
     seconds: seconds < 10 ? `0${seconds}`: seconds,
   };
-  document.getElementById(selector).textContent = 
+  $time.textContent = 
     `${time.hours}:${time.minutes}:${time.seconds}`;
+
+  document.querySelector('#timers').appendChild($timer);
 }
 
 function toggleAddTimerForm(e) {
@@ -76,7 +100,7 @@ function addTimer(e) {
   e.stopPropagation();
   const timer = {};
   timer.action = 'ADD_TIMER';
-  timer.name = document.querySelector('#addTimerName').value;
+  timer.name = document.querySelector('#addTimerName').value.split(/\s+/).join('');
   timer.domains = [];
 
   const $domains = document.getElementsByClassName('addTimerDomain');
@@ -97,7 +121,8 @@ function addTimer(e) {
   } else {
     e.preventDefault();
     chrome.runtime.sendMessage(timer, function(response) {
-      console.log('hey a response', response);
-    })
+      console.log('new timer set', response);
+      renderPopup();
+    });
   }
 }

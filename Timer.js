@@ -1,25 +1,27 @@
 class Timer {
-  constructor(
-    name, 
-    state={
-      hours: 0,
-      minutes: 0,
-      seconds: 0
-    }
-  ) {
+  constructor({
+    name,
+    hours,
+    minutes,
+    seconds,
+    domains
+  }) {
     this.name = name;
-    this.hours = state.hours;
-    this.minutes = state.minutes;
-    this.seconds = state.seconds;
+    this.hours = hours || 0
+    this.minutes = minutes || 0
+    this.seconds = seconds || 0
     this.isActive = false;
     this.interval;
+    this.domains = domains;
   }
   save(){
     chrome.storage.local.set({
-      [this.name + 'Timer'] : {
+      [this.name] : {
+        name: this.name,
+        domains: this.domains,
         hours: this.hours,
         minutes: this.minutes,
-        seconds: this.seconds
+        seconds: this.seconds        
       }
     });
   }
