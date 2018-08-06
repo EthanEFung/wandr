@@ -38,7 +38,7 @@ function renderTimer(timer) {
 
   const $label = document.createElement('label')
   $label.setAttribute('for', timer.name);
-  $label.textContent = timer.name + ": ";
+  $label.textContent = timer.name.split('-').join(' ') + ": ";
 
   $timer.append($label, $time);
 
@@ -104,7 +104,7 @@ function addTimer(e) {
   e.stopPropagation();
   const timer = {};
   timer.action = 'ADD_TIMER';
-  timer.name = document.querySelector('#addTimerName').value.split(/\s+/).join('');
+  timer.name = document.querySelector('#addTimerName').value.split(/\s+/).join('-');
   timer.domains = [];
 
   const $domains = document.getElementsByClassName('addTimerDomain');

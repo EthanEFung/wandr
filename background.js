@@ -19,7 +19,7 @@ function handleOnInstalled() {
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
-  addTimer({name: 'fb', domains: ['facebook.com']});
+  addTimer({name: 'facebook', domains: ['facebook.com']});
   setBrowserTimerHandlers();
 }
 
