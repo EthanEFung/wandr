@@ -41,6 +41,7 @@ function handleExtensionMessages(request, sender, senderResponse) {
   console.log('Action:', request.action);
   switch (request.action) {
     case 'ADD_TIMER' : senderResponse({timer: addTimer(request)});
+    case 'DELETE_TIMER': senderResponse({timers: deleteTimer(request)})
     default: break;
   }
 }
@@ -99,6 +100,14 @@ function addTimer(timer) {
   setTimer(timer);
   setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
   return timers[timer.name];
+}
+
+function deleteTimer({timer}) {
+  chrome.storage.local.remove(timer.name);
+  chrome.storage.local.get(null, function(res) {
+    delete timers[timer.name];
+    return res;
+  })
 }
 
 function setTimer(timerHistory) {

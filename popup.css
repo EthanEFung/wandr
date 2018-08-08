@@ -1,8 +1,90 @@
+@import url('https://fonts.googleapis.com/css?family=Cinzel|Lato');
+
 * {
   margin: 0;
   padding: 0;
+  font-family: var(--default-font);
+  font-size: 15px;
+  font-weight: 100;
+  line-height: 1.2em;
+  background-color: #444;
+  color: #fff;
+
+  --header-font: 'Cinzel';
+  --default-font: 'Lato';
 }
 
 body {
   width: 400px;
+}
+
+button {
+  border-radius: 3px;
+}
+
+.popupHeader {
+  height: 60px;
+  text-align: center;
+  border-bottom: 0.5px solid #555;
+
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.popupContent {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+h1 {
+  font-family: var(--header-font);
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+}
+
+#timers {
+  max-height: 410px;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.timer {
+  flex: 1;
+  min-height: 50px;
+  list-style: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  border: 1px solid #fff;
+  margin: 2px;
+}
+
+.timer * {
+  /* flex: 1; */
+  padding: 5px;
+}
+.timer #browser {
+  order: 99;
+}
+
+.timer span {
+  margin-right: auto;
+}
+
+.timer .deleteTimer {
+  flex: 0 2; 
+  margin-left: auto;
+  padding-top: 0;
+  align-self: flex-start;
+  border: none;
 }
