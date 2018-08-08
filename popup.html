@@ -7,43 +7,45 @@
 </head>
 <body>
   <header class="popupHeader">
-    <h1>Wandr</h1>
+    <h1>WANDR</h1>
     <p>Track your browser minutes</p>
   </header>
-  <ul id="timers">
-    <header><h2>Timers:</h2></header>
-  </ul>
-  <button id="initTimer">Add Timer</button>
-  <form id="addTimerForm" hidden>
-    <header>Add Timer:</header>
-    <div id="addTimerNameContainer">
-      <input 
+  <article class="popupContent">
+    <h2>Timers:</h2>
+    <ul id="timers"></ul>
+    <button id="initTimer">Add Timer</button>
+    <form id="addTimerForm" hidden>
+      <br>
+      <header>Add Timer:</header>
+      <div id="addTimerNameContainer">
+        <input 
         id="addTimerName" 
         type="text" 
         placeholder="Timer Name"
         required
         autocomplete="off"
-      >
-    </div>
-    <div id="submitTimerDomainContainer">
-      <ul id="timerDomains">
-        <li class="timerDomain">
-          <input
+        >
+      </div>
+      <div id="submitTimerDomainContainer">
+        <ul id="timerDomains">
+          <li class="timerDomain">
+            <input
             class="addTimerDomain" 
             type="text" 
             required 
             placeholder="Timer Domain"
             autocomplete="off"
-          >
-        </li>
-      </ul>
-      <button id="addDomainInput" type="button">
-        Add Another Domain
-      </button>
-    </div>
-    <button id="submitTimer" type="submit">Add Timer</button>
-    <button id="cancelTimer">Cancel</button>
-  </form>
-  <script src="popup.js"></script>
+            >
+          </li>
+        </ul>
+        <button id="addDomainInput" type="button">
+          Add Another Domain
+        </button>
+      </div>
+      <button id="submitTimer" type="submit">Add Timer</button>
+      <button id="cancelTimer">Cancel</button>
+    </form>
+  </article>
+    <script src="popup.js"></script>
 </body>
 </html>

@@ -41,6 +41,7 @@ function renderTimer(timer) {
   $label.textContent = timer.name.split('-').join(' ') + ": ";
 
   $timer.append($label, $time);
+  if(timer.name !== 'browser') $timer.append($deleteFactory());
 
   let hours = minutes = seconds = 0;
   if (timer) {
@@ -57,6 +58,21 @@ function renderTimer(timer) {
     `${time.hours}:${time.minutes}:${time.seconds}`;
 
   document.querySelector('#timers').appendChild($timer);
+
+  function $deleteFactory() {
+    const $delete = document.createElement('button');
+    $delete.setAttribute('class', 'deleteTimer');
+    $delete.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, function(e) {
+        console.log('Deleted Timer', e);
+      })
+    });
+    $delete.textContent = 'x';
+
+    return $delete;
+  }
 }
 
 function toggleAddTimerForm(e) {
