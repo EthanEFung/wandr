@@ -38,10 +38,6 @@
   font-size: 1.2rem;
 }
 
-#addTimerForm .cancelDomain:hover {
-  cursor: pointer;
-}
-
 #addTimerForm #timerButtons {
   display: flex;
   margin: 3px 5px 5px 5px;
