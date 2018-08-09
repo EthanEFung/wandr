@@ -32,16 +32,20 @@ function renderTimers(timers) {
 function renderTimer(timer) {
   const $timer = document.createElement('li');
   $timer.setAttribute('class', 'timer');
+  $timer.setAttribute('id', timer.name + 'Timer');
 
-  const $time = document.createElement('span');
-  $time.setAttribute('id', timer.name);
-
-  const $label = document.createElement('label')
+  const $label = document.createElement('label');
+  $label.setAttribute('class', 'timerName')
   $label.setAttribute('for', timer.name);
   $label.textContent = timer.name.split('-').join(' ') + ": ";
 
-  $timer.append($label, $time);
-  if(timer.name !== 'browser') $timer.append($deleteFactory());
+  const $time = document.createElement('span');
+  $time.setAttribute('class', 'timerTime');
+  $time.setAttribute('id', timer.name);
+
+  const $menu = $menuFactory();
+  
+  $timer.append($label, $time, $menu);
 
   let hours = minutes = seconds = 0;
   if (timer) {
@@ -59,19 +63,40 @@ function renderTimer(timer) {
 
   document.querySelector('#timers').appendChild($timer);
 
+  function $menuFactory() {
+    const $menu = document.createElement('div');
+    $menu.setAttribute('class', 'timerOptions');
+    $menu.textContent = '...'
+    
+    $menu.append($deleteFactory(), $editFactory())
+    return $menu;
+  }
+
   function $deleteFactory() {
-    const $delete = document.createElement('button');
+    const $delete = document.createElement('a');
     $delete.setAttribute('class', 'deleteTimer');
     $delete.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, function(e) {
-        console.log('Deleted Timer', e);
+      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, function(res) {
+        console.log('Timer Deleted', res);
       })
     });
-    $delete.textContent = 'x';
+    $delete.textContent = 'delete';
 
     return $delete;
+  }
+
+  function $editFactory() {
+    const $edit = document.createElement('a');
+    $edit.setAttribute('class', 'editTimer');
+    $edit.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      populateEditForm(timer);
+    });
+    $edit.textContent = 'edit';
+    return $edit;
   }
 }
 
@@ -81,13 +106,21 @@ function toggleAddTimerForm(e) {
   
   const $form = document.querySelector('#addTimerForm');
   const $initBtn = document.querySelector('#initTimer');
-  if ($form.hasAttribute('hidden')) {
-    $form.removeAttribute('hidden');
-    $initBtn.setAttribute('hidden', true);
+  const $main = document.querySelector('.main');
+  if ($form.classList.contains('hidden')) {
+    $form.classList.remove('hidden');
+    $initBtn.classList.add('hidden');
+    $main.classList.add('hidden');
   } else {
-    $form.setAttribute('hidden', true);
-    $initBtn.removeAttribute('hidden');
+    $form.classList.add('hidden');
+    $initBtn.classList.remove('hidden');
+    $main.classList.remove('hidden');
   }
+}
+
+function populateEditForm(res) {
+  const $editForm = document.querySelector('#editTimerForm');
+  $editForm.removeAttribute('hidden');
 }
 
 function addDomain(e) {
@@ -108,6 +141,7 @@ function addDomain(e) {
     const $cancel = document.createElement('button');
     $cancel.textContent = 'x';
     $cancel.setAttribute('type', 'button');
+    $cancel.setAttribute('class', 'cancelDomain');
     $cancel.addEventListener('click', function(e) {
       e.preventDefault();
       document.body.querySelector('#timerDomains').removeChild($cancel.parentNode);
@@ -140,6 +174,12 @@ function addTimer(e) {
     return;
   } else {
     e.preventDefault();
+    toggleAddTimerForm(e);
     chrome.runtime.sendMessage(timer, renderPopup);
+    const $inputs = document.querySelector('#addTimerForm')
+      .querySelectorAll('input');
+    for (let $input of $inputs) {
+      $input.value = '';
+    }
   }
 }
