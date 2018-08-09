@@ -3,6 +3,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
   font-family: var(--default-font);
   font-size: 15px;
   font-weight: 100;
@@ -12,6 +13,12 @@
 
   --header-font: 'Cinzel';
   --default-font: 'Lato';
+
+  list-style: none;
+}
+
+.hidden {
+  display: none !important;
 }
 
 body {
@@ -34,7 +41,7 @@ button {
   align-items: center;
 }
 
-.popupContent {
+.main {
   display: flex;
   flex-direction: column;
   padding: 5px;
@@ -63,27 +70,27 @@ h2 {
   min-height: 50px;
   list-style: none;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: flex-end;
   border: 1px solid #fff;
   margin: 2px;
 }
 
 .timer * {
-  /* flex: 1; */
   padding: 5px;
-}
-.timer #browser {
-  order: 99;
 }
 
 .timer span {
+  font-size: 2.4rem;
+}
+
+.timer label {
   margin-right: auto;
 }
 
+
 .timer .deleteTimer {
   flex: 0 2; 
-  margin-left: auto;
   padding-top: 0;
   align-self: flex-start;
   border: none;

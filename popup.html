@@ -3,49 +3,59 @@
 <head>
   <meta charset="utf-8" />
   <title>Wandr</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="css/popup.css">
+  <link rel="stylesheet" href="css/addTimerForm.css">
 </head>
 <body>
   <header class="popupHeader">
     <h1>WANDR</h1>
     <p>Track your browser minutes</p>
   </header>
-  <article class="popupContent">
-    <h2>Timers:</h2>
+  <article class="main hidden">
     <ul id="timers"></ul>
     <button id="initTimer">Add Timer</button>
-    <form id="addTimerForm" hidden>
-      <br>
-      <header>Add Timer:</header>
-      <div id="addTimerNameContainer">
-        <input 
-        id="addTimerName" 
-        type="text" 
-        placeholder="Timer Name"
-        required
-        autocomplete="off"
-        >
-      </div>
-      <div id="submitTimerDomainContainer">
-        <ul id="timerDomains">
-          <li class="timerDomain">
-            <input
-            class="addTimerDomain" 
-            type="text" 
-            required 
-            placeholder="Timer Domain"
-            autocomplete="off"
-            >
-          </li>
-        </ul>
-        <button id="addDomainInput" type="button">
-          Add Another Domain
-        </button>
-      </div>
+  </article>
+  <form id="addTimerForm" class="">
+    <header>Add Timer:</header>
+    <div class="container" id="addTimerNameContainer">
+      <input 
+      id="addTimerName" 
+      type="text" 
+      placeholder="Timer Name"
+      required
+      autocomplete="off"
+      >
+    </div>
+    <div class="container" id="submitTimerDomainContainer">
+      <ul id="timerDomains">
+        <li class="timerDomain">
+          <input
+          class="addTimerDomain" 
+          type="text" 
+          required 
+          placeholder="Timer Domain"
+          autocomplete="off"
+          >
+        </li>
+      </ul>
+      <button id="addDomainInput" type="button">
+        Add Another Domain
+      </button>
+    </div>
+    <div class="container">
       <button id="submitTimer" type="submit">Add Timer</button>
       <button id="cancelTimer">Cancel</button>
-    </form>
-  </article>
-    <script src="popup.js"></script>
+    </div>
+  </form>
+  <form id="editTimerForm" class="hidden">
+    <div id="editTimerNameContainer">
+      <input 
+      class="editTimerName" 
+      type="text" 
+      required
+      autocomplete="off"
+      >
+  </form>
+  <script src="popup.js"></script>
 </body>
 </html>

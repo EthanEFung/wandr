@@ -1,0 +1,41 @@
+#addTimerForm {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+#addTimerForm container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 5px;
+  padding: 5px;
+}
+
+#addTimerForm input {
+  flex: 1;
+  height: 30px;
+  padding: 5px;
+  border-radius: 3px;
+  margin: 2px 5px;
+  width: 97%;
+  border: 1px solid #fff;
+}
+
+#addTimerForm .timerDomain {
+  position: relative;
+}
+
+.timerDomain .cancelDomain {
+  border: none;
+  position: absolute;
+  right: 20px;
+  top: 5px;
+  font-size: 1.2rem;
+}
+
+#addTimerForm .cancelDomain:hover {
+  cursor: pointer;
+}
+
