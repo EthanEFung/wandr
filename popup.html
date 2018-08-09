@@ -11,11 +11,11 @@
     <h1>WANDR</h1>
     <p>Track your browser minutes</p>
   </header>
-  <article class="main hidden">
+  <article class="main">
     <ul id="timers"></ul>
     <button id="initTimer">Add Timer</button>
   </article>
-  <form id="addTimerForm" class="">
+  <form id="addTimerForm" class="hidden">
     <header>Add Timer:</header>
     <div class="container" id="addTimerNameContainer">
       <input 
@@ -38,12 +38,12 @@
           >
         </li>
       </ul>
-      <button id="addDomainInput" type="button">
+      <button id="addDomainButton" type="button">
         Add Another Domain
       </button>
     </div>
-    <div class="container">
-      <button id="submitTimer" type="submit">Add Timer</button>
+    <div id="timerButtons" class="container">
+      <button id="submitTimer" type="submit">Submit</button>
       <button id="cancelTimer">Cancel</button>
     </div>
   </form>

@@ -3,7 +3,7 @@ chrome.browserAction.onClicked.addListener(renderPopup);
 
 document.addEventListener('DOMContentLoaded', renderPopup, false);
 document.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
-document.querySelector('#addDomainInput').addEventListener('click', addDomain, false);
+document.querySelector('#addDomainButton').addEventListener('click', addDomain, false);
 document.querySelector('#submitTimer').addEventListener('click', addTimer, false);
 document.querySelector('#cancelTimer').addEventListener('click', toggleAddTimerForm, false);
 
