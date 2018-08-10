@@ -101,7 +101,7 @@ function renderTimer(timer) {
       e.preventDefault();
       e.stopPropagation();
       chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, function(res) {
-        console.log('Timer Deleted', res);
+        console.log(res);
       })
     });
     $delete.textContent = 'delete';
