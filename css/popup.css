@@ -104,6 +104,11 @@ ul {
   cursor: pointer;
 }
 
+#initTimer {
+  margin: 0 2px;
+  margin-top: 2px;
+}
+
 container {
   flex: 1;
   display: flex;
@@ -150,10 +155,11 @@ input, .addDomainButton {
 
 #timerButtons {
   display: flex;
-  margin: 3px 5px 5px 5px;
+  margin: 5px;
+  margin-top: 2px;
 }
 
 #timerButtons button {
   flex: 1;
-  margin: 2px;
+  margin: 0 3px;
 }
