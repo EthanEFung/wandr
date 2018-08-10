@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Cinzel|Lato');
+@import url('https://fonts.googleapis.com/css?family=Lora|Lato');
 
 * {
   margin: 0;
@@ -8,10 +8,10 @@
   font-size: 15px;
   font-weight: 100;
   line-height: 1.2em;
-  background-color: #444;
+  background-color: #333;
   color: #fff;
 
-  --header-font: 'Cinzel';
+  --header-font: 'Lora';
   --default-font: 'Lato';
 
   list-style: none;
@@ -35,8 +35,6 @@ button {
   height: 60px;
   text-align: center;
   border-bottom: 0.5px solid #555;
-
-
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -51,7 +49,7 @@ button {
 
 h1 {
   font-family: var(--header-font);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1.6rem;
 }
 
@@ -90,10 +88,63 @@ h2 {
   margin-right: auto;
 }
 
-
-.timer .deleteTimer {
-  flex: 0 2; 
-  padding-top: 0;
-  align-self: flex-start;
+.timer button {
   border: none;
+}
+
+#browserTimer .timerOptions {
+  cursor: pointer;
+}
+
+container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 5px;
+  padding: 5px;
+}
+
+form label, form header {
+  display: block;
+  margin: 0 auto;
+  margin-top: 5px;
+  text-align: center;
+  font-size: 1.2rem;
+
+  line-height: 1.2;
+  font-family: var(--header-font);
+}
+
+input, .addDomainButton {
+  flex: 1;
+  height: 30px;
+  padding: 5px;
+  border-radius: 3px;
+  margin: 2px 5px;
+  width: 97%;
+  border: 1px solid #fff;
+}
+
+.timerDomain {
+  position: relative;
+}
+
+.timerDomain .cancelDomain {
+  padding: 0;
+  border: none;
+  position: absolute;
+  right: 20px;
+  top: 5px;
+  font-size: 1.2rem;
+}
+
+#timerButtons {
+  display: flex;
+  margin: 3px 5px 5px 5px;
+}
+
+#timerButtons button {
+  flex: 1;
+  margin: 2px;
 }
