@@ -11,7 +11,7 @@ for (let $button of document.getElementsByClassName('addDomainButton')) {
   $button.addEventListener('click', addDomain);
 }
 
-function renderPopup() {
+function renderPopup(response) {
   chrome.storage.local.get(null, 
     result => {
       clearDOMTimers();
@@ -19,25 +19,25 @@ function renderPopup() {
       removeBrowserTimerHandlers();
     }
   );
-}
 
-function clearDOMTimers() {
-  const $timers = document.querySelector('#timers');
-  while ($timers.firstChild) {
-    $timers.removeChild($timers.firstChild);
-  } 
-}
-
-function renderTimers(timers) {
-  for (let timer in timers) {
-    renderTimer(timers[timer]);
+  function clearDOMTimers() {
+    const $timers = document.querySelector('#timers');
+    while ($timers.firstChild) {
+      $timers.removeChild($timers.firstChild);
+    } 
   }
-}
-
-function removeBrowserTimerHandlers() {
-  const $browserTimerOptions = document.querySelector('#browserTimer .timerOptions');
-  while ($browserTimerOptions.firstChild) {
-    $browserTimerOptions.removeChild($browserTimerOptions.firstChild);
+  
+  function renderTimers(timers) {
+    for (let timer in timers) {
+      renderTimer(timers[timer]);
+    }
+  }
+  
+  function removeBrowserTimerHandlers() {
+    const $browserTimerOptions = document.querySelector('#browserTimer .timerOptions');
+    while ($browserTimerOptions.firstChild) {
+      $browserTimerOptions.removeChild($browserTimerOptions.firstChild);
+    }
   }
 }
 
@@ -193,13 +193,17 @@ function populateEditForm(res) {
 }
 
 function addDomain(e) {
-  console.log(e.target.parentNode);
   const $parent = e.target.parentNode;
+  console.log('parent', $parent);
+
   e.stopPropagation();
   e.preventDefault();
   const $domain = document.createElement('li');
   const $input = document.createElement('input');
   $input.setAttribute('class', 'addTimerDomain');
+
+  if ($parent.getAttribute('id') === "editTimerForm") $input.classList.add('editTimerDomain');
+
   $input.setAttribute('required', true);
   $input.setAttribute('placeholder', 'Timer Domain');
   $input.setAttribute('autocomplete', 'off');
@@ -256,35 +260,43 @@ function addTimer(e) {
 }
 
 function editTimer(e) {
-  e.stopPropagation();
-  const timer = {};
-  timer.action = 'EDIT_TIMER';
-  timer.name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
-  timer.domains = [];
+  try {
+    e.stopPropagation();
+    const timer = {};
+    timer.action = 'EDIT_TIMER';
+    timer.name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
+    timer.domains = [];
+  
+    const $domains = document.getElementsByClassName('editTimerDomain');
 
-  const $domains = document.querySelector('#editTimerDomains').children
-  let hasEmptyInputs = false;
-  if (timer.name === '') {
-    hasEmptyInputs = true;
-  }
-  for (let $domain of $domains) {
-    if ($domain.value === '') {
+    let hasEmptyInputs = false;
+    if (timer.name === '') {
       hasEmptyInputs = true;
-      break;
+    }
+    for (let $domain of $domains) {
+      if ($domain.value === '') {
+        hasEmptyInputs = true;
+        break;
+      } else {
+        timer.domains.push($domain.value);
+      }
+    }
+    if (hasEmptyInputs) {
+      return;
     } else {
-      timer.domains.push($domain.value);
+      e.preventDefault();
+      console.log(timer);
+      chrome.runtime.sendMessage(timer, response => {
+        console.log('received', response);
+      });
+      const $inputs = document.querySelector('#editTimerForm')
+        .querySelectorAll('input');
+      for (let $input of $inputs) {
+        $input.value = '';
+      }
+      // toggleEditTimerForm(e);
     }
-  }
-  if (hasEmptyInputs) {
-    return;
-  } else {
-    e.preventDefault();
-    toggleEditTimerForm(e);
-    chrome.runtime.sendMessage(timer, renderPopup);
-    const $inputs = document.querySelector('#editTimerForm')
-      .querySelectorAll('input');
-    for (let $input of $inputs) {
-      $input.value = '';
-    }
+  } catch (e) {
+    alert(e);
   }
 }

@@ -28,7 +28,6 @@ function handleOnStartup() {
     for (let timerName in result) {
       if (timers[timerName]) {
         console.log(timers);
-        
       } else {
         addTimer(result[timerName]);
       }
@@ -39,11 +38,24 @@ function handleOnStartup() {
 
 function handleExtensionMessages(request, sender, senderResponse) {
   console.log('Action:', request.action);
+  let response;
   switch (request.action) {
-    case 'ADD_TIMER' : senderResponse({timer: addTimer(request)});
-    case 'DELETE_TIMER': senderResponse({timers: deleteTimer(request)})
-    default: break;
+    case 'ADD_TIMER': 
+      console.log('ran add timer')
+      response = {timer: addTimer(request)};
+      break;
+    case 'DELETE_TIMER': 
+      console.log('ran delete timer');
+      response = deleteTimer(request);
+      break;
+    case 'EDIT_TIMER':
+      console.log('ran edit timer');
+      response = {timer: editTimer(request)};
+      break;
+    default:
+      response = 'NO_ACTION';
   }
+  return senderResponse(response);
 }
 
 function handleWindowRemove() {
@@ -104,10 +116,12 @@ function addTimer(timer) {
 
 function deleteTimer({timer}) {
   chrome.storage.local.remove(timer.name);
-  chrome.storage.local.get(null, function(res) {
-    delete timers[timer.name];
-    return res;
-  })
+  delete timers[timer.name];
+  return 'Timer Deleted';
+}
+
+function editTimer(timer) {
+  return timers[timer.name];
 }
 
 function setTimer(timerHistory) {
