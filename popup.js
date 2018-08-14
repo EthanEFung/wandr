@@ -164,6 +164,7 @@ function populateEditForm(res) {
   chrome.storage.local.get(res, function({domains, name}) {
     const $timerName = document.querySelector('#editTimerName');
     $timerName.value = name;
+    $timerName.setAttribute('previousName', name);
     clearEditTimerDomains();
     domains.forEach(domain => {
       const $domain = document.createElement('input');
@@ -194,7 +195,6 @@ function populateEditForm(res) {
 
 function addDomain(e) {
   const $parent = e.target.parentNode;
-  console.log('parent', $parent);
 
   e.stopPropagation();
   e.preventDefault();
@@ -265,6 +265,7 @@ function editTimer(e) {
     const timer = {};
     timer.action = 'EDIT_TIMER';
     timer.name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
+    timer.previousName = document.querySelector('#editTimerName').getAttribute('previousName');
     timer.domains = [];
   
     const $domains = document.getElementsByClassName('editTimerDomain');
@@ -285,7 +286,6 @@ function editTimer(e) {
       return;
     } else {
       e.preventDefault();
-      console.log(timer);
       chrome.runtime.sendMessage(timer, response => {
         console.log('received', response);
       });
@@ -294,7 +294,7 @@ function editTimer(e) {
       for (let $input of $inputs) {
         $input.value = '';
       }
-      // toggleEditTimerForm(e);
+      toggleEditTimerForm(e);
     }
   } catch (e) {
     alert(e);

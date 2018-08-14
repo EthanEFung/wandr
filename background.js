@@ -10,9 +10,11 @@ function setBrowserTimerHandlers() {
 }
  
 function setTimerHandlers(regex, timer) {
+  console.log('timer domains', regex)
   chrome.windows.onFocusChanged.addListener(handleWindowChange(regex, timer));
   chrome.tabs.onUpdated.addListener(handleUpdatedTab(regex, timer));
   chrome.tabs.onActivated.addListener(handleActiveTab(regex, timer));
+
 }
 
 function handleOnInstalled() {
@@ -41,15 +43,12 @@ function handleExtensionMessages(request, sender, senderResponse) {
   let response;
   switch (request.action) {
     case 'ADD_TIMER': 
-      console.log('ran add timer')
       response = {timer: addTimer(request)};
       break;
     case 'DELETE_TIMER': 
-      console.log('ran delete timer');
       response = deleteTimer(request);
       break;
     case 'EDIT_TIMER':
-      console.log('ran edit timer');
       response = {timer: editTimer(request)};
       break;
     default:
@@ -71,7 +70,7 @@ function handleWindowRemove() {
 
 function handleWindowChange(regex, timer) {
   return function(windowId){
-    if (windowId === -1) return;
+    if (windowId === -1 || !timers[timer.name]) return;
     chrome.windows.get(Number(windowId), {populate: true}, function(window) {
       const {tabs} = window;
       for (let tab of tabs) {
@@ -89,6 +88,7 @@ function handleWindowChange(regex, timer) {
 
 function handleUpdatedTab(regex, timer) {
   return function(tabId, changedInfo, tab) {
+    timers[timer.name] && 
     changedInfo.status === "complete" &&
     regex.test(tab.url) &&
     !timer.isActive &&
@@ -98,6 +98,7 @@ function handleUpdatedTab(regex, timer) {
 
 function handleActiveTab(regex, timer) {
   return function(activeInfo) {
+    if (!timers[timer.name]) return;
     chrome.tabs.get(activeInfo.tabId, function(tab) {
       if (regex.test(tab.url)) {
         !timer.isActive && timer.start();
@@ -121,7 +122,19 @@ function deleteTimer({timer}) {
 }
 
 function editTimer(timer) {
-  return timers[timer.name];
+  console.log('edit timer with new results', timer);
+  chrome.storage.local.get(timer.previousName, function(response) {
+    const previousTimer = response[timer.previousName];
+    deleteTimer({timer: previousTimer});
+    addTimer({
+      name: timer.name,
+      hours: previousTimer.hours,
+      minutes: previousTimer.minutes,
+      seconds: previousTimer.seconds,
+      domains: timer.domains
+    });
+  });
+  return timer;
 }
 
 function setTimer(timerHistory) {
@@ -143,7 +156,7 @@ function setTimer(timerHistory) {
         timer.start();
       }
     });
-  })
+  });
   timers[timerHistory.name] = timer;
 }
 
