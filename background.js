@@ -155,19 +155,6 @@ function editTimer(history) {
       timer.domains = history.domains;
       setTimer(timer);
       setTimerHandlers(setDomainRegex(history.domains), timer);
-      // _timers[history.name].save();
-      // setTimerHandlers(setDomainRegex(history.domains), _timers[history.name]);
-      // chrome.windows.getCurrent({populate:true}, function(window) {
-      //   window.tabs.forEach(tab => {
-      //     if (
-      //       tab.active && 
-      //       setDomainRegex(history.domains).test(tab.url) &&
-      //       !_timers[history.name].isActive
-      //     ) {
-      //       _timers[history.name].start();
-      //     }
-      //   });
-      // });
     } else {
       deleteTimer({timer: previousHistory});
       addTimer({
