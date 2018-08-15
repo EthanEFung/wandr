@@ -112,7 +112,15 @@ function handleActiveTab(regex, timer) {
   }
 }
 
-function addTimer(timer) {
+function addTimer(history) {
+  const timer = new Timer({
+    name: history.name,
+    hours: history.hours || 0,
+    minutes: history.minutes || 0,
+    seconds: history.seconds || 0,
+    domains: history.domains || []
+  });
+
   setTimer(timer);
   setTimerHandlers(setDomainRegex(timer.domains), _timers[timer.name]);
   return _timers[timer.name];
@@ -143,20 +151,23 @@ function editTimer(history) {
     chrome.tabs.onActivated.removeListener(_eventHandlers[history.previousName][2]);
 
     if (history.name === history.previousName) {
-      _timers[history.name].domains = history.domains;
-      _timers[history.name].save();
-      setTimerHandlers(setDomainRegex(history.domains), _timers[history.name]);
-      chrome.windows.getCurrent({populate:true}, function(window) {
-        window.tabs.forEach(tab => {
-          if (
-            tab.active && 
-            setDomainRegex(history.domains).test(tab.url) &&
-            !_timers[history.name].isActive
-          ) {
-            _timers[history.name].start();
-          }
-        });
-      });
+      const timer = _timers[history.name]
+      timer.domains = history.domains;
+      setTimer(timer);
+      setTimerHandlers(setDomainRegex(history.domains), timer);
+      // _timers[history.name].save();
+      // setTimerHandlers(setDomainRegex(history.domains), _timers[history.name]);
+      // chrome.windows.getCurrent({populate:true}, function(window) {
+      //   window.tabs.forEach(tab => {
+      //     if (
+      //       tab.active && 
+      //       setDomainRegex(history.domains).test(tab.url) &&
+      //       !_timers[history.name].isActive
+      //     ) {
+      //       _timers[history.name].start();
+      //     }
+      //   });
+      // });
     } else {
       deleteTimer({timer: previousHistory});
       addTimer({
@@ -171,14 +182,7 @@ function editTimer(history) {
   return _timers[history.name];
 }
 
-function setTimer(history) {
-  const timer = new Timer({
-    name: history.name,
-    hours: history.hours || 0,
-    minutes: history.minutes || 0,
-    seconds: history.seconds || 0,
-    domains: history.domains || []
-  });
+function setTimer(timer) {
   timer.save();
   chrome.windows.getCurrent({populate:true}, function(window) {
     window.tabs.forEach(tab => {
@@ -191,7 +195,7 @@ function setTimer(history) {
       }
     });
   });
-  _timers[history.name] = timer;
+  _timers[timer.name] = timer;
 }
 
 function updateToolTip() {
