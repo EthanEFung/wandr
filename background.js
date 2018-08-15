@@ -119,7 +119,6 @@ function addTimer(timer) {
 }
 
 function deleteTimer({timer}) {
-  console.log(_eventHandlers);
   _timers[timer.name].stop();
 
   chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
@@ -134,54 +133,51 @@ function deleteTimer({timer}) {
 
 
 
-function editTimer(timer) {
-  console.log('edit timer with new results', timer);
-  _timers[timer.previousName].stop();
-  chrome.storage.local.get(timer.previousName, function(response) {
-    const previousTimer = response[timer.previousName];
-    console.log(previousTimer)
+function editTimer(history) {
+  _timers[history.previousName].stop();
+  chrome.storage.local.get(history.previousName, function(response) {
+    const previousHistory = response[history.previousName];
 
-    chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.previousName][0]);
-    chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.previousName][1]);
-    chrome.tabs.onActivated.removeListener(_eventHandlers[timer.previousName][2]);
+    chrome.windows.onFocusChanged.removeListener(_eventHandlers[history.previousName][0]);
+    chrome.tabs.onUpdated.removeListener(_eventHandlers[history.previousName][1]);
+    chrome.tabs.onActivated.removeListener(_eventHandlers[history.previousName][2]);
 
-    if (timer.name === timer.previousName) {
-      _timers[timer.name].domains = timer.domains;
-      _timers[timer.name].save();
-      setTimerHandlers(setDomainRegex(timer.domains), _timers[timer.name]);
+    if (history.name === history.previousName) {
+      _timers[history.name].domains = history.domains;
+      _timers[history.name].save();
+      setTimerHandlers(setDomainRegex(history.domains), _timers[history.name]);
       chrome.windows.getCurrent({populate:true}, function(window) {
         window.tabs.forEach(tab => {
           if (
             tab.active && 
-            setDomainRegex(timer.domains).test(tab.url) &&
-            !_timers[timer.name].isActive
+            setDomainRegex(history.domains).test(tab.url) &&
+            !_timers[history.name].isActive
           ) {
-            _timers[timer.name].start();
+            _timers[history.name].start();
           }
         });
       });
     } else {
-      deleteTimer({timer: previousTimer});
+      deleteTimer({timer: previousHistory});
       addTimer({
-        name: timer.name,
-        hours: previousTimer.hours,
-        minutes: previousTimer.minutes,
-        seconds: previousTimer.seconds,
-        domains: timer.domains
+        name: history.name,
+        hours: previousHistory.hours,
+        minutes: previousHistory.minutes,
+        seconds: previousHistory.seconds,
+        domains: history.domains
       });
     }
-    
   });
-  return timer;
+  return _timers[history.name];
 }
 
-function setTimer(timerHistory) {
+function setTimer(history) {
   const timer = new Timer({
-    name: timerHistory.name,
-    hours: timerHistory.hours || 0,
-    minutes: timerHistory.minutes || 0,
-    seconds: timerHistory.seconds || 0,
-    domains: timerHistory.domains || []
+    name: history.name,
+    hours: history.hours || 0,
+    minutes: history.minutes || 0,
+    seconds: history.seconds || 0,
+    domains: history.domains || []
   });
   timer.save();
   chrome.windows.getCurrent({populate:true}, function(window) {
@@ -195,7 +191,7 @@ function setTimer(timerHistory) {
       }
     });
   });
-  _timers[timerHistory.name] = timer;
+  _timers[history.name] = timer;
 }
 
 function updateToolTip() {
