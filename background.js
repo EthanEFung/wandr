@@ -135,6 +135,7 @@ function editTimer(timer) {
 
     if (timer.name === timer.previousName) {
       timers[timer.name].domains = timer.domains;
+      timers[timer.name].save();
       setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
     } else {
       deleteTimer({timer: previousTimer});
