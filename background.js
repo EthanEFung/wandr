@@ -1,20 +1,25 @@
 const timers = {};
+const _eventHandlers = {};
 
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
 
 function setBrowserTimerHandlers() {
+  _eventHandlers.browser = [handleWindowRemove, updateToolTip];
   chrome.windows.onRemoved.addListener(handleWindowRemove);
   chrome.storage.onChanged.addListener(updateToolTip);
 }
  
 function setTimerHandlers(regex, timer) {
-  console.log('timer domains', regex)
-  chrome.windows.onFocusChanged.addListener(handleWindowChange(regex, timer));
-  chrome.tabs.onUpdated.addListener(handleUpdatedTab(regex, timer));
-  chrome.tabs.onActivated.addListener(handleActiveTab(regex, timer));
-
+  _eventHandlers[timer.name] = [
+    handleWindowChange(regex, timer), 
+    handleUpdatedTab(regex, timer),
+    handleActiveTab(regex, timer)
+  ];
+  chrome.windows.onFocusChanged.addListener(_eventHandlers[timer.name][0]);
+  chrome.tabs.onUpdated.addListener(_eventHandlers[timer.name][1]);
+  chrome.tabs.onActivated.addListener(_eventHandlers[timer.name][2]);
 }
 
 function handleOnInstalled() {
@@ -70,7 +75,7 @@ function handleWindowRemove() {
 
 function handleWindowChange(regex, timer) {
   return function(windowId){
-    if (windowId === -1 || !timers[timer.name]) return;
+    if (windowId === -1) return;
     chrome.windows.get(Number(windowId), {populate: true}, function(window) {
       const {tabs} = window;
       for (let tab of tabs) {
@@ -88,7 +93,6 @@ function handleWindowChange(regex, timer) {
 
 function handleUpdatedTab(regex, timer) {
   return function(tabId, changedInfo, tab) {
-    timers[timer.name] && 
     changedInfo.status === "complete" &&
     regex.test(tab.url) &&
     !timer.isActive &&
@@ -98,7 +102,6 @@ function handleUpdatedTab(regex, timer) {
 
 function handleActiveTab(regex, timer) {
   return function(activeInfo) {
-    if (!timers[timer.name]) return;
     chrome.tabs.get(activeInfo.tabId, function(tab) {
       if (regex.test(tab.url)) {
         !timer.isActive && timer.start();
@@ -125,6 +128,13 @@ function editTimer(timer) {
   console.log('edit timer with new results', timer);
   chrome.storage.local.get(timer.previousName, function(response) {
     const previousTimer = response[timer.previousName];
+
+    console.log('has event listener before removal', chrome.tabs.onUpdated.hasListener(_eventHandlers[timer.previousName[1]]));
+    chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.previousName][0]);
+    chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.previousName][1]);
+    chrome.tabs.onActivated.removeListener(_eventHandlers[timer.previousName][2]);
+    console.log('has event listener after removal', chrome.tabs.onUpdated.hasListener(_eventHandlers[timer.previousName[1]]));
+    
     deleteTimer({timer: previousTimer});
     addTimer({
       name: timer.name,
