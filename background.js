@@ -1,4 +1,4 @@
-const timers = {};
+const _timers = {};
 const _eventHandlers = {};
 
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
@@ -33,8 +33,8 @@ function handleOnInstalled() {
 function handleOnStartup() {
   chrome.storage.local.get(null, function(result) {
     for (let timerName in result) {
-      if (timers[timerName]) {
-        console.log(timers);
+      if (_timers[timerName]) {
+        console.log(_timers);
       } else {
         addTimer(result[timerName]);
       }
@@ -65,9 +65,9 @@ function handleExtensionMessages(request, sender, senderResponse) {
 function handleWindowRemove() {
   chrome.windows.getAll({}, function(windows) {
     if (windows.length === 0) {
-      for (let i in timers) {
-        timers[i].stop();
-        timers[i].save();
+      for (let i in _timers) {
+        _timers[i].stop();
+        _timers[i].save();
       }
     }
   });
@@ -114,13 +114,13 @@ function handleActiveTab(regex, timer) {
 
 function addTimer(timer) {
   setTimer(timer);
-  setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
-  return timers[timer.name];
+  setTimerHandlers(setDomainRegex(timer.domains), _timers[timer.name]);
+  return _timers[timer.name];
 }
 
 function deleteTimer({timer}) {
   console.log(_eventHandlers);
-  timers[timer.name].stop();
+  _timers[timer.name].stop();
 
   chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
   chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
@@ -128,7 +128,7 @@ function deleteTimer({timer}) {
 
   delete _eventHandlers[timer.name];
   chrome.storage.local.remove(timer.name);
-  delete timers[timer.name];
+  delete _timers[timer.name];
   return 'Timer Deleted';
 }
 
@@ -136,7 +136,7 @@ function deleteTimer({timer}) {
 
 function editTimer(timer) {
   console.log('edit timer with new results', timer);
-  timers[timer.previousName].stop();
+  _timers[timer.previousName].stop();
   chrome.storage.local.get(timer.previousName, function(response) {
     const previousTimer = response[timer.previousName];
     console.log(previousTimer)
@@ -146,17 +146,17 @@ function editTimer(timer) {
     chrome.tabs.onActivated.removeListener(_eventHandlers[timer.previousName][2]);
 
     if (timer.name === timer.previousName) {
-      timers[timer.name].domains = timer.domains;
-      timers[timer.name].save();
-      setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
+      _timers[timer.name].domains = timer.domains;
+      _timers[timer.name].save();
+      setTimerHandlers(setDomainRegex(timer.domains), _timers[timer.name]);
       chrome.windows.getCurrent({populate:true}, function(window) {
         window.tabs.forEach(tab => {
           if (
             tab.active && 
             setDomainRegex(timer.domains).test(tab.url) &&
-            !timers[timer.name].isActive
+            !_timers[timer.name].isActive
           ) {
-            timers[timer.name].start();
+            _timers[timer.name].start();
           }
         });
       });
@@ -195,11 +195,11 @@ function setTimer(timerHistory) {
       }
     });
   });
-  timers[timerHistory.name] = timer;
+  _timers[timerHistory.name] = timer;
 }
 
 function updateToolTip() {
-  const {hours, minutes, seconds} = timers.browser;
+  const {hours, minutes, seconds} = _timers.browser;
   const time = {
     hours: hours < 10 ? `0${hours}` : "" + hours,
     minutes: minutes < 10 ? `0${minutes}` : "" + minutes,
