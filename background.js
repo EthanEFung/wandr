@@ -129,20 +129,23 @@ function editTimer(timer) {
   chrome.storage.local.get(timer.previousName, function(response) {
     const previousTimer = response[timer.previousName];
 
-    console.log('has event listener before removal', chrome.tabs.onUpdated.hasListener(_eventHandlers[timer.previousName[1]]));
     chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.previousName][0]);
     chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.previousName][1]);
     chrome.tabs.onActivated.removeListener(_eventHandlers[timer.previousName][2]);
-    console.log('has event listener after removal', chrome.tabs.onUpdated.hasListener(_eventHandlers[timer.previousName[1]]));
-    
-    deleteTimer({timer: previousTimer});
-    addTimer({
-      name: timer.name,
-      hours: previousTimer.hours,
-      minutes: previousTimer.minutes,
-      seconds: previousTimer.seconds,
-      domains: timer.domains
-    });
+
+    if (timer.name === timer.previousName) {
+      timers[timer.name].domains = timer.domains;
+      setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
+    } else {
+      deleteTimer({timer: previousTimer});
+      addTimer({
+        name: timer.name,
+        hours: previousTimer.hours,
+        minutes: previousTimer.minutes,
+        seconds: previousTimer.seconds,
+        domains: timer.domains
+      });
+    }
   });
   return timer;
 }
