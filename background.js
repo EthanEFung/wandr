@@ -119,15 +119,27 @@ function addTimer(timer) {
 }
 
 function deleteTimer({timer}) {
+  console.log(_eventHandlers);
+  timers[timer.name].stop();
+
+  chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
+  chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
+  chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
+
+  delete _eventHandlers[timer.name];
   chrome.storage.local.remove(timer.name);
   delete timers[timer.name];
   return 'Timer Deleted';
 }
 
+
+
 function editTimer(timer) {
   console.log('edit timer with new results', timer);
+  timers[timer.previousName].stop();
   chrome.storage.local.get(timer.previousName, function(response) {
     const previousTimer = response[timer.previousName];
+    console.log(previousTimer)
 
     chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.previousName][0]);
     chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.previousName][1]);
@@ -137,6 +149,17 @@ function editTimer(timer) {
       timers[timer.name].domains = timer.domains;
       timers[timer.name].save();
       setTimerHandlers(setDomainRegex(timer.domains), timers[timer.name]);
+      chrome.windows.getCurrent({populate:true}, function(window) {
+        window.tabs.forEach(tab => {
+          if (
+            tab.active && 
+            setDomainRegex(timer.domains).test(tab.url) &&
+            !timers[timer.name].isActive
+          ) {
+            timers[timer.name].start();
+          }
+        });
+      });
     } else {
       deleteTimer({timer: previousTimer});
       addTimer({
@@ -147,6 +170,7 @@ function editTimer(timer) {
         domains: timer.domains
       });
     }
+    
   });
   return timer;
 }
