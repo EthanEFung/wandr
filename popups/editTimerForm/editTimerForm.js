@@ -13,13 +13,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
         document.querySelector('#editTimerName').setAttribute('previousName', storage[i].name);
         clearEditTimerDomains();
         storage[i].domains.forEach(domain => {
-          const $domain = document.createElement('input');
-          $domain.setAttribute('autocomplete', 'off');
-          $domain.classList.add('editTimerDomain');
-          $domain.value = domain;
-          const $li = document.createElement('li');
-          $li.append($domain);
-          document.querySelector('#editTimerDomains').append($li);
+          const $domain = append$Domain(e);
+          $domain.querySelector('.editTimerDomain').value = domain;
         });
 
         delete storage[i].isEditing;
@@ -69,7 +64,6 @@ function edit$Timer(e) {
       $input.value = '';
     }
     chrome.runtime.sendMessage(timer, response => {
-      console.log('received', response);
       toggleTimersView(e)
     });
   }
@@ -83,10 +77,10 @@ function toggleTimersView(e) {
 }
 
 function append$Domain(e) {
-  const $parent = e.target.parentNode;
-
-  e.stopPropagation();
   e.preventDefault();
+  e.stopPropagation();
+  
+  const $parent = document.querySelector('.addDomainButton').parentNode;
   const $domain = document.createElement('li');
   const $input = document.createElement('input');
   $input.classList.add('addTimerDomain', 'editTimerDomain');
@@ -98,6 +92,8 @@ function append$Domain(e) {
   $domain.append($input, $cancelFactory());
   $domain.setAttribute('class', 'timerDomain');
   $parent.querySelector('.timerDomains').appendChild($domain);
+
+  return $domain;
 
   function $cancelFactory() {
     const $cancel = document.createElement('button');
