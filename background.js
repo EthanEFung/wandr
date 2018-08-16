@@ -140,6 +140,7 @@ function deleteTimer({timer}) {
 }
 
 function editTimer(history) {
+  console.log(history);
   _timers[history.previousName].stop();
   chrome.storage.local.get(history.previousName, function(response) {
     const previousHistory = response[history.previousName];

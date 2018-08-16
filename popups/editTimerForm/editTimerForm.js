@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     for (let i in storage) {
       if (storage[i].isEditing) {
         document.querySelector('#editTimerName').value = storage[i].name;
+        document.querySelector('#editTimerName').setAttribute('previousName', storage[i].name);
         clearEditTimerDomains();
         storage[i].domains.forEach(domain => {
           const $domain = document.createElement('input');
@@ -33,47 +34,44 @@ document.addEventListener('DOMContentLoaded', function(e) {
       $domains.removeChild($domains.firstChild);
     }
   } 
-})
+});
 
 
 function edit$Timer(e) {
-  try {
-    e.stopPropagation();
-    const timer = {};
-    timer.action = 'EDIT_TIMER';
-    timer.name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
-    timer.previousName = document.querySelector('#editTimerName').getAttribute('previousName');
-    timer.domains = [];
-  
-    const $domains = document.getElementsByClassName('editTimerDomain');
+  e.stopPropagation();
+  const timer = {};
+  timer.action = 'EDIT_TIMER';
+  timer.name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
+  timer.previousName = document.querySelector('#editTimerName').getAttribute('previousName');
+  timer.domains = [];
 
-    let hasEmptyInputs = false;
-    if (timer.name === '') {
+  const $domains = document.getElementsByClassName('editTimerDomain');
+
+  let hasEmptyInputs = false;
+  if (timer.name === '') {
+    hasEmptyInputs = true;
+  }
+  for (let $domain of $domains) {
+    if ($domain.value === '') {
       hasEmptyInputs = true;
-    }
-    for (let $domain of $domains) {
-      if ($domain.value === '') {
-        hasEmptyInputs = true;
-        break;
-      } else {
-        timer.domains.push($domain.value);
-      }
-    }
-    if (hasEmptyInputs) {
-      return;
+      break;
     } else {
-      e.preventDefault();
-      chrome.runtime.sendMessage(timer, response => {
-        console.log('received', response);
-      });
-      const $inputs = document.querySelector('#editTimerForm')
-        .querySelectorAll('input');
-      for (let $input of $inputs) {
-        $input.value = '';
-      }
+      timer.domains.push($domain.value);
     }
-  } catch (e) {
-    console.log(e);
+  }
+  if (hasEmptyInputs) {
+    return;
+  } else {
+    e.preventDefault();
+    const $inputs = document.querySelector('#editTimerForm')
+      .querySelectorAll('input');
+    for (let $input of $inputs) {
+      $input.value = '';
+    }
+    chrome.runtime.sendMessage(timer, response => {
+      console.log('received', response);
+      toggleTimersView(e)
+    });
   }
 }
 
