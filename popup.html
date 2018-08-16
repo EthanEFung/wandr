@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Wandr</title>
-  <link rel="stylesheet" href="css/popup.css">
+  <link rel="stylesheet" href="/css/popup.css">
 </head>
 <body>
   <header class="popupHeader">
@@ -14,58 +14,6 @@
     <ul id="timers"></ul>
     <button id="initTimer">Add Timer</button>
   </article>
-  <form id="addTimerForm" class="hidden">
-    <header>Add Timer:</header>
-    <div class="container" id="addTimerNameContainer">
-      <input 
-      id="addTimerName" 
-      type="text" 
-      placeholder="Timer Name"
-      required
-      autocomplete="off"
-      >
-    </div>
-    <div class="container" id="submitTimerDomainContainer">
-      <ul class="timerDomains">
-        <li class="timerDomain">
-          <input
-          class="addTimerDomain" 
-          type="text" 
-          required 
-          placeholder="Timer Domain"
-          autocomplete="off"
-          >
-        </li>
-      </ul>
-    </div>
-    <button class="addDomainButton" type="button">
-      Add Another Domain
-    </button>
-    <div id="timerButtons" class="container">
-      <button id="addTimer" class="submitTimer" type="submit">Submit</button>
-      <button class="cancelTimer">Cancel</button>
-    </div>
-  </form>
-  <form id="editTimerForm" class="hidden">
-    <div id="editTimerNameContainer">
-      <label for="editTimerName">Name</label>
-      <input 
-      id="editTimerName" 
-      type="text" 
-      required
-      autocomplete="off"
-      >
-    </div>
-    <label for="editTimerDomains">Domains</label>
-    <ul id="editTimerDomains" class="timerDomains"></ul>
-    <button class="addDomainButton" type="button">
-      Add Another Domain
-    </button>
-    <div id="timerButtons" class="container">
-      <button id="editTimer" class="submitTimer" type="submit">Submit</button>
-      <button class="cancelTimer">Cancel</button>
-    </div>
-  </form>
-  <script src="popup.js"></script>
+  <script src="/popup.js"></script>
 </body>
 </html>

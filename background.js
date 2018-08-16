@@ -133,13 +133,11 @@ function deleteTimer({timer}) {
   chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
   chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
 
+  delete _timers[timer.name];
   delete _eventHandlers[timer.name];
   chrome.storage.local.remove(timer.name);
-  delete _timers[timer.name];
   return 'Timer Deleted';
 }
-
-
 
 function editTimer(history) {
   _timers[history.previousName].stop();
