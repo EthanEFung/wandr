@@ -32,11 +32,11 @@ function handleOnInstalled() {
 
 function handleOnStartup() {
   chrome.storage.local.get(null, function(result) {
-    for (let timerName in result) {
-      if (_timers[timerName]) {
+    for (let i in result) {
+      if (_timers[i]) {
         console.log(_timers);
       } else {
-        addTimer(result[timerName]);
+        addTimer(result[i]);
       }
     }
     setBrowserTimerHandlers();
@@ -93,6 +93,7 @@ function handleWindowChange(regex, timer) {
 
 function handleUpdatedTab(regex, timer) {
   return function(tabId, changedInfo, tab) {
+    tab.active &&
     changedInfo.status === "complete" &&
     regex.test(tab.url) &&
     !timer.isActive &&
@@ -140,7 +141,6 @@ function deleteTimer({timer}) {
 }
 
 function editTimer(history) {
-  console.log(history);
   _timers[history.previousName].stop();
   chrome.storage.local.get(history.previousName, function(response) {
     const previousHistory = response[history.previousName];
