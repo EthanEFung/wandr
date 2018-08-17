@@ -112,7 +112,7 @@ function toggleAddTimerForm(e) {
   e.preventDefault();
 
   chrome.browserAction.setPopup({popup: 'popups/addTimerForm/addTimerForm.html'});
-  window.location.href='popups/addTimerForm/addTimerForm.html';
+  window.location.href = 'popups/addTimerForm/addTimerForm.html';
 }
 
 function toggleEditTimerForm(e) {

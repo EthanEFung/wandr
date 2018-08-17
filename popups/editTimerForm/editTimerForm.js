@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
   } 
 });
 
-
 function edit$Timer(e) {
   e.stopPropagation();
   const timer = {};
