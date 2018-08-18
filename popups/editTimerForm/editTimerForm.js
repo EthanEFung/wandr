@@ -99,6 +99,7 @@ function append$Domain(e) {
     $cancel.textContent = 'x';
     $cancel.setAttribute('type', 'button');
     $cancel.setAttribute('class', 'cancelDomain');
+    $cancel.setAttribute('tabindex', '-1');
     $cancel.addEventListener('click', function(e) {
       e.preventDefault();
       $parent.querySelector('.timerDomains').removeChild($cancel.parentNode);
