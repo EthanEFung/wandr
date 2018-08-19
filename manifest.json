@@ -2,7 +2,7 @@
   "name": "Wandr",
   "version": "1.0",
   "description": "Log your browsing minutes",
-  "permissions": ["tabs", "storage", "declarativeContent"],
+  "permissions": ["tabs", "storage", "declarativeContent", "alarms"],
   "background": {
     "scripts": ["Timer.js", "background.js"],
     "persistent": false

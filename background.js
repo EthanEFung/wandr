@@ -1,9 +1,19 @@
 const _timers = {};
 const _eventHandlers = {};
+const _midnight = new Date();
 
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
+chrome.alarms.onAlarm.addListener(handleResetTimersOnAlarm);
+
+chrome.alarms.create('resetTimersAlarm', {
+  when: Date.now() + 1000
+});
+
+chrome.alarms.getAll(function(alarms) {
+  console.log(alarms);
+});
 
 function setBrowserTimerHandlers() {
   _eventHandlers.browser = [handleWindowRemove, updateToolTip];
@@ -60,6 +70,30 @@ function handleExtensionMessages(request, sender, senderResponse) {
       response = 'NO_ACTION';
   }
   return senderResponse(response);
+}
+
+function handleResetTimersOnAlarm(alarm) {
+  const resetTimersAlarmName = 'resetTimersAlarm';
+  if (alarm.name === resetTimersAlarmName) {
+    _midnight.setHours(24,0,0,0);
+    chrome.alarms.clear(resetTimersAlarmName, 
+      function() {
+        chrome.alarms.getAll(function(alarms) {
+          console.log(alarms);
+        });
+        chrome.alarms.create(resetTimersAlarmName, {
+          when: _midnight.getTime()
+        });
+        chrome.alarms.getAll(function(alarms) {
+          const time = new Date(alarms[0].scheduledTime);
+          console.log(alarms[0]);
+          console.log('Next timers reset scheduled for:\n', time);
+        });
+      }
+    );
+
+    resetTimers();
+  }
 }
 
 function handleWindowRemove() {
@@ -168,6 +202,14 @@ function editTimer(history) {
   return _timers[history.name];
 }
 
+function resetTimers() {
+
+}
+
+function setDomainRegex(domains) {
+  return RegExp(domains.join('|'), 'i');
+}
+
 function setTimer(timer) {
   timer.save();
   chrome.windows.getCurrent({populate:true}, function(window) {
@@ -191,13 +233,10 @@ function updateToolTip() {
     minutes: minutes < 10 ? `0${minutes}` : "" + minutes,
     seconds: seconds < 10 ? `0${seconds}`: "" + seconds,
   }
-  const formattedTime = `Total Browsing Time - ${time.hours}:${time.minutes}:${time.seconds}`
+  const formattedTime = 
+    `Total Browsing Time - ${time.hours}:${time.minutes}:${time.seconds}`
   chrome.browserAction.setTitle({
     title: formattedTime
   });
-}
-
-function setDomainRegex(domains) {
-  return RegExp(domains.join('|'), 'i');
 }
 
