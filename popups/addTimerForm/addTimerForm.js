@@ -58,6 +58,7 @@ function append$Domain(e) {
   
   $domain.append($input, $cancelFactory());
   $domain.setAttribute('class', 'timerDomain');
+  
   $parent.querySelector('.timerDomains').appendChild($domain);
 
   function $cancelFactory() {

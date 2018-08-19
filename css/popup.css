@@ -17,10 +17,6 @@
   --default-font: 'Lato';
 }
 
-.hidden {
-  display: none !important;
-}
-
 body {
   width: 400px;
 }
@@ -29,6 +25,7 @@ button {
   cursor: pointer;
   border-radius: 3px;
   padding: 8px;
+  outline: none;
 }
 
 .popupHeader {
@@ -91,6 +88,7 @@ ul {
   align-items: flex-end;
   border: 1px solid #fff;
   margin: 2px;
+  order:2;
 }
 
 .timer * {
@@ -107,6 +105,10 @@ ul {
 
 .timer button {
   border: none;
+}
+
+#browserTimer {
+  order:1
 }
 
 #browserTimer .timerOptions {
@@ -146,6 +148,7 @@ input, .addDomainButton {
   margin-left: 8px;
   width: 96vw;
   border: 1px solid #fff;
+  outline-color: goldenrod;
 }
 
 .timerDomain {
