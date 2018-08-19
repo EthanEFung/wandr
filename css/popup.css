@@ -8,10 +8,11 @@
   font-size: 15px;
   font-weight: 100;
   line-height: 1.2em;
-  background-color: #333;
-  color: #fff;
+  background-color: #222;
+  color: silver;
   list-style: none;
   border: none;
+  outline-color: goldenrod;
 
   --header-font: 'Lora';
   --default-font: 'Lato';
@@ -25,7 +26,12 @@ button {
   cursor: pointer;
   border-radius: 3px;
   padding: 8px;
-  outline: none;
+}
+
+button:hover {
+  animation-name: color-white;
+  animation-duration: 500ms;
+  animation-fill-mode:forwards;
 }
 
 .popupHeader {
@@ -36,6 +42,10 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.popupHeader p {
+  color: #fff;
 }
 
 .main {
@@ -53,6 +63,7 @@ h1 {
   letter-spacing: 1rem;
   text-align: center;
   margin-left: 1rem;
+  color: goldenrod;
 }
 
 h2 {
@@ -69,6 +80,7 @@ ul {
   margin-right: 3px;
   padding: 3px 7px;
   background: transparent;
+  outline: none;
 }
 
 #timers {
@@ -89,6 +101,7 @@ ul {
   border: 1px solid #fff;
   margin: 2px;
   order:2;
+  position: relative;
 }
 
 .timer * {
@@ -107,12 +120,30 @@ ul {
   border: none;
 }
 
+.timerTime {
+  position: absolute;
+  color: silver;
+  margin: auto;
+  left: 30vw;
+  bottom: 3vw;
+  background: transparent;
+  /* border: 1px solid #fff; */
+  line-height: 1rem;
+}
+
 #browserTimer {
   order:1
 }
 
 #browserTimer .timerOptions {
   cursor: pointer;
+  margin: 0;
+}
+
+.timerOptions button {
+  padding: 0 5px;
+  margin: 0;
+  outline: none;
 }
 
 #initTimer {
@@ -131,6 +162,7 @@ container {
 form label, form header {
   display: block;
   margin: 0 auto;
+  padding: 3px;
   margin-top: 5px;
   text-align: center;
   font-size: 1.2rem;
@@ -148,7 +180,6 @@ input, .addDomainButton {
   margin-left: 8px;
   width: 96vw;
   border: 1px solid #fff;
-  outline-color: goldenrod;
 }
 
 .timerDomain {
@@ -173,4 +204,10 @@ input, .addDomainButton {
 #timerButtons button {
   flex: 1;
   margin: 0 3px;
+}
+
+@keyframes color-white {
+  100% {
+    color: #fff;
+  }
 }
