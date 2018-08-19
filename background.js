@@ -67,6 +67,9 @@ function handleExtensionMessages(request, sender, senderResponse) {
     case 'EDIT_TIMER':
       response = {timer: editTimer(request)};
       break;
+    case 'RESET_TIMERS': 
+      response = resetTimers(request);
+      break; 
     default:
       response = 'NO_ACTION';
   }
@@ -207,10 +210,12 @@ function resetTimers() {
     const t = _timers[i];
     t.stop();
     //TODO generate a report
+    // generateReport();
     deleteTimer({timer: t});
     if (t.name === 'browser') setBrowserTimerHandlers();
     addTimer({name: t.name, domains: t.domains});
   }
+  return 'Timers Reset'
 }
 
 function setDomainRegex(domains) {

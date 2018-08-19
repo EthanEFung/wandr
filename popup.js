@@ -2,8 +2,8 @@ chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
 document.addEventListener('DOMContentLoaded', renderPopup, false);
+document.querySelector('#resetTimers').addEventListener('click', reset$Timers);
 document.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
-
 
 for (let $button of document.getElementsByClassName('addDomainButton')) {
   $button.addEventListener('click', append$Domain);
@@ -105,6 +105,14 @@ function render$Timer(timer) {
     $edit.textContent = 'edit';
     return $edit;
   }
+}
+
+function reset$Timers(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  chrome.runtime.sendMessage({action: 'RESET_TIMERS'}, function(response) {
+    console.log(response);
+  })
 }
 
 function toggleAddTimerForm(e) {
