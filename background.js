@@ -1,27 +1,28 @@
 const _timers = {};
 const _eventHandlers = {};
-const _midnight = new Date();
+const _alarmResetHour = new Date();
+chrome.alarms.create('resetTimersAlarm', {when: Date.now() + 3000});
 
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
 chrome.alarms.onAlarm.addListener(handleResetTimersOnAlarm);
 
-chrome.alarms.create('resetTimersAlarm', {
-  when: Date.now() + 1000
-});
-
-chrome.alarms.getAll(function(alarms) {
-  console.log(alarms);
-});
-
 function setBrowserTimerHandlers() {
   _eventHandlers.browser = [handleWindowRemove, updateToolTip];
+
+  if (chrome.windows.onRemoved.hasListener(handleWindowRemove)) {
+    chrome.windows.onRemoved.removeListener(handleWindowRemove);
+  }
+  if (chrome.storage.onChanged.hasListener(updateToolTip)) {
+    chrome.storage.onChanged.removeListener(updateToolTip);
+  }
   chrome.windows.onRemoved.addListener(handleWindowRemove);
   chrome.storage.onChanged.addListener(updateToolTip);
 }
  
 function setTimerHandlers(regex, timer) {
+  if (timer.name === 'browser') return;
   _eventHandlers[timer.name] = [
     handleWindowChange(regex, timer), 
     handleUpdatedTab(regex, timer),
@@ -75,18 +76,17 @@ function handleExtensionMessages(request, sender, senderResponse) {
 function handleResetTimersOnAlarm(alarm) {
   const resetTimersAlarmName = 'resetTimersAlarm';
   if (alarm.name === resetTimersAlarmName) {
-    _midnight.setHours(24,0,0,0);
+    // <-- uncomment following lines and comment out 24 hour set for debugging -->
+    // const now = new Date(Date.now());
+    // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 10, 0);
+    _alarmResetHour.setHours(25,0,0,0);
     chrome.alarms.clear(resetTimersAlarmName, 
       function() {
-        chrome.alarms.getAll(function(alarms) {
-          console.log(alarms);
-        });
         chrome.alarms.create(resetTimersAlarmName, {
-          when: _midnight.getTime()
+          when: _alarmResetHour.getTime()
         });
         chrome.alarms.getAll(function(alarms) {
           const time = new Date(alarms[0].scheduledTime);
-          console.log(alarms[0]);
           console.log('Next timers reset scheduled for:\n', time);
         });
       }
@@ -164,13 +164,13 @@ function addTimer(history) {
 function deleteTimer({timer}) {
   _timers[timer.name].stop();
 
+  chrome.storage.local.remove(timer.name);
   chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
   chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
   chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
 
   delete _timers[timer.name];
   delete _eventHandlers[timer.name];
-  chrome.storage.local.remove(timer.name);
   return 'Timer Deleted';
 }
 
@@ -203,7 +203,14 @@ function editTimer(history) {
 }
 
 function resetTimers() {
-
+  for (let i in _timers) {
+    const t = _timers[i];
+    t.stop();
+    //TODO generate a report
+    deleteTimer({timer: t});
+    if (t.name === 'browser') setBrowserTimerHandlers();
+    addTimer({name: t.name, domains: t.domains});
+  }
 }
 
 function setDomainRegex(domains) {
