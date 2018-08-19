@@ -45,7 +45,7 @@ button:hover {
 }
 
 .popupHeader p {
-  color: #fff;
+  color: #ddd;
 }
 
 .main {
@@ -63,7 +63,9 @@ h1 {
   letter-spacing: 1rem;
   text-align: center;
   margin-left: 1rem;
-  color: goldenrod;
+  animation-name: color-gold;
+  animation-duration: 2000ms;
+  animation-fill-mode: forwards;
 }
 
 h2 {
@@ -209,5 +211,19 @@ input, .addDomainButton {
 @keyframes color-white {
   100% {
     color: #fff;
+  }
+}
+
+@keyframes color-gold {
+  0% {
+    color: goldenrod;
+  }
+
+  50% {
+    color: gold;
+  }
+
+  100% {
+    color: goldenrod;
   }
 }
