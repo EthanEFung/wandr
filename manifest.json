@@ -2,7 +2,13 @@
   "name": "Wandr",
   "version": "1.0",
   "description": "Log your browsing minutes",
-  "permissions": ["tabs", "storage", "declarativeContent", "alarms"],
+  "permissions": [
+    "tabs",
+    "storage", 
+    "declarativeContent", 
+    "alarms",
+    "https://brass-cobra-9941.twil.io/sendWandr"
+  ],
   "background": {
     "scripts": ["Timer.js", "background.js"],
     "persistent": false
