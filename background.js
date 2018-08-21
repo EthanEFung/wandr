@@ -1,7 +1,27 @@
 const _timers = {};
 const _eventHandlers = {};
 const _alarmResetHour = new Date();
-chrome.alarms.create('resetTimersAlarm', {when: Date.now() + 3000});
+
+chrome.alarms.getAll(function(alarms) {
+  let hasReset = false;
+  for (let i in alarms) {
+    if (alarms[i].name === 'resetTimersAlarm') {
+      hasReset = true;
+      console.log('Defaulting to previous reset time\n')
+      const time = new Date(alarms[i].scheduledTime);
+      console.log(time);
+    }
+  }
+
+  if (!hasReset) {
+    console.log('no previous alarm, creating reset timer alarm');
+    _alarmResetHour.setHours(25,0,0,0);
+    chrome.alarms.create(
+      'resetTimersAlarm', 
+      {when: _alarmResetHour.getTime()}
+    );
+  }
+});
 
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
@@ -56,32 +76,22 @@ function handleOnStartup() {
 
 function handleExtensionMessages(request, sender, senderResponse) {
   console.log('Action:', request.action);
-  let response;
-  switch (request.action) {
-    case 'ADD_TIMER': 
-      response = {timer: addTimer(request)};
-      break;
-    case 'DELETE_TIMER': 
-      response = deleteTimer(request);
-      break;
-    case 'EDIT_TIMER':
-      response = {timer: editTimer(request)};
-      break;
-    case 'RESET_TIMERS': 
-      response = resetTimers(request);
-      break; 
-    default:
-      response = 'NO_ACTION';
+  const responseMap = {
+    'ADD_TIMER': () => ({timer: addTimer(request)}),
+    'DELETE_TIMER': () => deleteTimer(request),
+    'EDIT_TIMER': () => ({timer: editTimer(request)}),
+    'RESET_TIMERS': () => resetTimers(request)
   }
-  return senderResponse(response);
+  return senderResponse(responseMap[request.action]());
 }
 
 function handleResetTimersOnAlarm(alarm) {
   const resetTimersAlarmName = 'resetTimersAlarm';
+
   if (alarm.name === resetTimersAlarmName) {
     // <-- uncomment following lines and comment out 24 hour set for debugging -->
     // const now = new Date(Date.now());
-    // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 10, 0);
+    // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 30, 0);
     _alarmResetHour.setHours(25,0,0,0);
     chrome.alarms.clear(resetTimersAlarmName, 
       function() {
@@ -94,7 +104,7 @@ function handleResetTimersOnAlarm(alarm) {
         });
       }
     );
-
+    // generateReport();
     resetTimers();
   }
 }
@@ -205,12 +215,27 @@ function editTimer(history) {
   return _timers[history.name];
 }
 
+function generateReport() {
+  chrome.storage.local.get(null, function(response) {
+    fetch("https://brass-cobra-9941.twil.io/sendWandr", {
+      method: "POST",
+      mode: "cors",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify(response), // body data type must match "Content-Type" header
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(err => err);
+  });
+}
+
 function resetTimers() {
   for (let i in _timers) {
     const t = _timers[i];
     t.stop();
-    //TODO generate a report
-    // generateReport();
     deleteTimer({timer: t});
     if (t.name === 'browser') setBrowserTimerHandlers();
     addTimer({name: t.name, domains: t.domains});
