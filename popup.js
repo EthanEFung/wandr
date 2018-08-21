@@ -87,9 +87,7 @@ function render$Timer(timer) {
     $delete.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, function(res) {
-        console.log(res);
-      })
+      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer });
     });
     $delete.textContent = 'delete';
 
@@ -110,9 +108,7 @@ function render$Timer(timer) {
 function reset$Timers(e) {
   e.preventDefault();
   e.stopPropagation();
-  chrome.runtime.sendMessage({action: 'RESET_TIMERS'}, function(response) {
-    console.log(response);
-  })
+  chrome.runtime.sendMessage({action: 'RESET_TIMERS'})
 }
 
 function toggleAddTimerForm(e) {
