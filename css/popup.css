@@ -8,7 +8,7 @@
   font-size: 15px;
   font-weight: 100;
   line-height: 1.2em;
-  background-color: #222;
+  background-color:var(--background-color);
   color: silver;
   list-style: none;
   border: none;
@@ -16,6 +16,7 @@
 
   --header-font: 'Lora';
   --default-font: 'Lato';
+  --background-color: #222;
 }
 
 body {
@@ -64,7 +65,7 @@ h1 {
   text-align: center;
   margin-left: 1rem;
   animation-name: color-gold;
-  animation-duration: 2000ms;
+  animation-duration: 4000ms;
   animation-fill-mode: forwards;
 }
 
@@ -216,10 +217,14 @@ input, .addDomainButton {
 
 @keyframes color-gold {
   0% {
-    color: goldenrod;
+    color: var(--background-color);
   }
 
-  50% {
+  33% {
+    color: gold;
+  }
+
+  70% {
     color: gold;
   }
 
