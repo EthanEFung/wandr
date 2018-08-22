@@ -33,7 +33,6 @@ function setTimerHandlers(regex, timer) {
 }
 
 function handleOnInstalled() {
-  console.log()
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
   chrome.alarms.clearAll(function(wasCleared) {
