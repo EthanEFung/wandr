@@ -33,11 +33,14 @@ function setTimerHandlers(regex, timer) {
 }
 
 function handleOnInstalled() {
+  console.log()
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
   chrome.alarms.clearAll(function(wasCleared) {
     console.log('cleared alarms:', wasCleared);
-    _alarmResetHour.setHours(25,0,0,0);
+
+    const now = new Date(Date.now());
+    _alarmResetHour.setMinutes(now.getMinutes());
     chrome.alarms.create(
       'resetTimersAlarm',
       {when: _alarmResetHour.getTime()}
@@ -75,11 +78,11 @@ function handleExtensionMessages(request, sender, senderResponse) {
 
 function handleResetTimersOnAlarm(alarm) {
   const resetTimersAlarmName = 'resetTimersAlarm';
-
   if (alarm.name === resetTimersAlarmName) {
     // <-- uncomment following lines and comment out 24 hour set for debugging -->
     // const now = new Date(Date.now());
     // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 30, 0);
+    _alarmResetHour.setHours(25,0,0,0);
     chrome.alarms.clear(resetTimersAlarmName, 
       function() {
         chrome.alarms.create(resetTimersAlarmName, {
