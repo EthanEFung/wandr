@@ -2,27 +2,6 @@ const _timers = {};
 const _eventHandlers = {};
 const _alarmResetHour = new Date();
 
-chrome.alarms.getAll(function(alarms) {
-  let hasReset = false;
-  for (let i in alarms) {
-    if (alarms[i].name === 'resetTimersAlarm') {
-      hasReset = true;
-      console.log('Defaulting to previous reset time\n')
-      const time = new Date(alarms[i].scheduledTime);
-      console.log(time);
-    }
-  }
-
-  if (!hasReset) {
-    console.log('no previous alarm, creating reset timer alarm');
-    _alarmResetHour.setHours(25,0,0,0);
-    chrome.alarms.create(
-      'resetTimersAlarm', 
-      {when: _alarmResetHour.getTime()}
-    );
-  }
-});
-
 chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
@@ -56,6 +35,14 @@ function setTimerHandlers(regex, timer) {
 function handleOnInstalled() {
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
+  chrome.alarms.clearAll(function(wasCleared) {
+    console.log('cleared alarms:', wasCleared);
+    _alarmResetHour.setHours(25,0,0,0);
+    chrome.alarms.create(
+      'resetTimersAlarm',
+      {when: _alarmResetHour.getTime()}
+    );
+  });
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
   addTimer({name: 'facebook', domains: ['facebook.com']});
   setBrowserTimerHandlers();
@@ -80,7 +67,8 @@ function handleExtensionMessages(request, sender, senderResponse) {
     'ADD_TIMER': () => ({timer: addTimer(request)}),
     'DELETE_TIMER': () => deleteTimer(request),
     'EDIT_TIMER': () => ({timer: editTimer(request)}),
-    'RESET_TIMERS': () => resetTimers(request)
+    'RESET_TIMERS': () => resetTimers(request),
+    'TEXT_TIMERS_REPORT': generateReport
   }
   return senderResponse(responseMap[request.action]());
 }
@@ -92,7 +80,6 @@ function handleResetTimersOnAlarm(alarm) {
     // <-- uncomment following lines and comment out 24 hour set for debugging -->
     // const now = new Date(Date.now());
     // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 30, 0);
-    _alarmResetHour.setHours(25,0,0,0);
     chrome.alarms.clear(resetTimersAlarmName, 
       function() {
         chrome.alarms.create(resetTimersAlarmName, {
@@ -104,7 +91,7 @@ function handleResetTimersOnAlarm(alarm) {
         });
       }
     );
-    // generateReport();
+    generateReport();
     resetTimers();
   }
 }
