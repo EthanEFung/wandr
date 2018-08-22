@@ -2,8 +2,9 @@ chrome.storage.onChanged.addListener(renderPopup);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
 document.addEventListener('DOMContentLoaded', renderPopup, false);
-document.querySelector('#resetTimers').addEventListener('click', reset$Timers);
+document.querySelector('#resetTimers').addEventListener('click', reset$Timers, false);
 document.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
+document.querySelector('#textReport').addEventListener('click', textTimersReport, false);
 
 for (let $button of document.getElementsByClassName('addDomainButton')) {
   $button.addEventListener('click', append$Domain);
@@ -166,6 +167,10 @@ function append$Domain(e) {
   }
 }
 
-
+function textTimersReport(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  chrome.runtime.sendMessage({action: 'TEXT_TIMERS_REPORT'});
+}
 
 
