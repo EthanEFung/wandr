@@ -8,7 +8,11 @@ chrome.runtime.onMessage.addListener(handleExtensionMessages);
 chrome.alarms.onAlarm.addListener(handleResetTimersOnAlarm);
 
 function setBrowserTimerHandlers() {
-  _eventHandlers.browser = [handleWindowRemove, updateToolTip];
+  _eventHandlers.browser = [
+    handleWindowRemove, 
+    updateToolTip, 
+    handleUserActivity
+  ];
 
   if (chrome.windows.onRemoved.hasListener(handleWindowRemove)) {
     chrome.windows.onRemoved.removeListener(handleWindowRemove);
@@ -40,10 +44,9 @@ function handleOnInstalled() {
 
     const now = new Date(Date.now());
     _alarmResetHour.setMinutes(now.getMinutes());
-    chrome.alarms.create(
-      'resetTimersAlarm',
-      {when: _alarmResetHour.getTime()}
-    );
+    chrome.alarms.create('resetTimersAlarm', {
+      when: _alarmResetHour.getTime()
+    });
   });
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
   addTimer({name: 'facebook', domains: ['facebook.com']});
@@ -80,20 +83,21 @@ function handleResetTimersOnAlarm(alarm) {
   if (alarm.name === resetTimersAlarmName) {
     // <-- uncomment following lines and comment out 24 hour set for debugging -->
     // const now = new Date(Date.now());
-    // _alarmResetHour.setHours(now.getHours(), now.getMinutes(), now.getSeconds() + 30, 0);
+    // _alarmResetHour.setHours(
+    //   now.getHours(), now.getMinutes(), now.getSeconds() + 30, 0);
     _alarmResetHour.setHours(25,0,0,0);
     chrome.alarms.clear(resetTimersAlarmName, 
       function() {
         chrome.alarms.create(resetTimersAlarmName, {
           when: _alarmResetHour.getTime()
         });
-        chrome.alarms.getAll(function(alarms) {
-          const time = new Date(alarms[0].scheduledTime);
+        chrome.alarms.get(resetTimersAlarmName, function(alarm) {
+          const time = new Date(alarm.scheduledTime);
           console.log('Next timers reset scheduled for:\n', time);
         });
       }
     );
-    generateReport();
+    // generateReport();
     resetTimers();
   }
 }
