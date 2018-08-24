@@ -6,35 +6,9 @@ chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
 chrome.alarms.onAlarm.addListener(handleResetTimersOnAlarm);
-chrome.idle.setDetectionInterval(15)
-chrome.idle.onStateChanged.addListener(function(newState) {
-  console.log('state', newState)
-  if (newState === 'idle' || newState === 'locked') {
-    console.log('timers', _timers);
-    for (let i in _timers) {
-      const t = _timers[i];
-      t.stop();
-    }
-  } else {
 
-    
-    chrome.windows.getAll({populate:true}, function(windows) {
-      for (let window of windows) {
-        window.tabs.forEach(tab => {
-          if (tab.active) {
-            console.log('for active tab', tab)
-            for (let i in _timers) {
-              const domains = setDomainRegex(_timers[i].domains);
-              if (domains.test(tab.url) && !_timers[i].isActive) {
-                _timers[i].start();
-              }
-            }
-          }
-        })
-      }
-    });
-  }
-})
+chrome.idle.setDetectionInterval(60);
+chrome.idle.onStateChanged.addListener(handleIdleStateChange);
 
 function setBrowserTimerHandlers() {
   _eventHandlers.browser = [
@@ -64,6 +38,33 @@ function setTimerHandlers(regex, timer) {
   chrome.tabs.onActivated.addListener(_eventHandlers[timer.name][2]);
 }
 
+function handleIdleStateChange(newState) {
+  console.log('Idle state:', newState);
+  if (newState === 'idle' || newState === 'locked') {
+    console.log('timers:', _timers);
+    for (let i in _timers) {
+      const t = _timers[i];
+      t.stop();
+    }
+  } else {
+    chrome.windows.getAll({populate:true}, function(windows) {
+      for (let window of windows) {
+        window.tabs.forEach(tab => {
+          if (tab.active) {
+            console.log('for active tab', tab);
+            for (let i in _timers) {
+              const domains = setDomainRegex(_timers[i].domains);
+              if (domains.test(tab.url) && !_timers[i].isActive) {
+                _timers[i].start();
+              }
+            }
+          }
+        })
+      }
+    });
+  }
+}
+
 function handleOnInstalled() {
   chrome.storage.local.clear();
   chrome.storage.sync.clear();
@@ -79,9 +80,14 @@ function handleOnInstalled() {
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
   addTimer({name: 'facebook', domains: ['facebook.com']});
   setBrowserTimerHandlers();
+
+  chrome.tabs.onUpdated.addListener(handleSetIdleDetectionInterval);
+  chrome.tabs.onActivated.addListener(handleSetIdleDetectionInterval);
 }
 
 function handleOnStartup() {
+  chrome.tabs.onUpdated.addListener(handleSetIdleDetectionInterval);
+  chrome.tabs.onActivated.addListener(handleSetIdleDetectionInterval);
   chrome.storage.local.get(null, function(result) {
     for (let i in result) {
       if (_timers[i]) {
@@ -104,6 +110,29 @@ function handleExtensionMessages(request, sender, senderResponse) {
     'TEXT_TIMERS_REPORT': generateReport
   }
   return senderResponse(responseMap[request.action]());
+}
+
+function handleSetIdleDetectionInterval(...args) {
+  if (arguments.length === 1) handleOnActivated(...args);
+  if (arguments.length === 3) handleOnUpdated(...args);
+
+  function handleOnUpdated(tabId, changedInfo, tab) {
+    handleAudibleTabs(tab);
+  }
+
+  function handleOnActivated({tabId}) {
+    chrome.tabs.get(tabId, function(tab) {
+      handleAudibleTabs(tab);
+    });
+  }
+
+  function handleAudibleTabs(tab) {
+    if (tab.audible) {
+      chrome.idle.setDetectionInterval(1800);
+    } else {
+      chrome.idle.setDetectionInterval(60);
+    }
+  }
 }
 
 function handleResetTimersOnAlarm(alarm) {
@@ -129,6 +158,8 @@ function handleResetTimersOnAlarm(alarm) {
     resetTimers();
   }
 }
+
+
 
 function handleWindowRemove() {
   chrome.windows.getAll({}, function(windows) {
