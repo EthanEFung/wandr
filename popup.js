@@ -1,4 +1,4 @@
-chrome.storage.onChanged.addListener(renderPopup);
+chrome.storage.onChanged.addListener(update$TimerTimes);
 chrome.browserAction.onClicked.addListener(renderPopup);
 
 document.addEventListener('DOMContentLoaded', renderPopup, false);
@@ -132,6 +132,31 @@ function toggleEditTimerForm(e) {
       chrome.browserAction.setPopup({popup: '/popups/editTimerForm/editTimerForm.html'});
       window.location.href = '/popups/editTimerForm/editTimerForm.html';
     })
+  });
+}
+
+function update$TimerTimes() {
+  chrome.storage.local.get(null, timers => {
+    const $times = document.getElementsByClassName('timerTime');
+
+    for (let $time of $times) {
+      const name = $time.getAttribute('id');
+      timers[name];
+
+      let hours = minutes = seconds = 0;
+      if (timers[name]) {
+        hours = timers[name].hours;
+        minutes = timers[name].minutes;
+        seconds = timers[name].seconds;
+      }
+      const time = {
+        hours: hours < 10 ? `0${hours}` : hours,
+        minutes: minutes < 10 ? `0${minutes}` : minutes,
+        seconds: seconds < 10 ? `0${seconds}`: seconds,
+      };
+      $time.textContent = 
+        `${time.hours}:${time.minutes}:${time.seconds}`;
+    }
   });
 }
 

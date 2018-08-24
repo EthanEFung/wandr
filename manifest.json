@@ -5,8 +5,8 @@
   "permissions": [
     "tabs",
     "storage", 
-    "declarativeContent", 
     "alarms",
+    "idle",
     "https://brass-cobra-9941.twil.io/sendWandr"
   ],
   "background": {

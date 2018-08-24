@@ -6,12 +6,40 @@ chrome.runtime.onInstalled.addListener(handleOnInstalled);
 chrome.runtime.onStartup.addListener(handleOnStartup);
 chrome.runtime.onMessage.addListener(handleExtensionMessages);
 chrome.alarms.onAlarm.addListener(handleResetTimersOnAlarm);
+chrome.idle.setDetectionInterval(15)
+chrome.idle.onStateChanged.addListener(function(newState) {
+  console.log('state', newState)
+  if (newState === 'idle' || newState === 'locked') {
+    console.log('timers', _timers);
+    for (let i in _timers) {
+      const t = _timers[i];
+      t.stop();
+    }
+  } else {
+
+    
+    chrome.windows.getAll({populate:true}, function(windows) {
+      for (let window of windows) {
+        window.tabs.forEach(tab => {
+          if (tab.active) {
+            console.log('for active tab', tab)
+            for (let i in _timers) {
+              const domains = setDomainRegex(_timers[i].domains);
+              if (domains.test(tab.url) && !_timers[i].isActive) {
+                _timers[i].start();
+              }
+            }
+          }
+        })
+      }
+    });
+  }
+})
 
 function setBrowserTimerHandlers() {
   _eventHandlers.browser = [
     handleWindowRemove, 
-    updateToolTip, 
-    handleUserActivity
+    updateToolTip
   ];
 
   if (chrome.windows.onRemoved.hasListener(handleWindowRemove)) {
