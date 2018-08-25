@@ -1,5 +1,4 @@
 chrome.storage.onChanged.addListener(update$TimerTimes);
-chrome.browserAction.onClicked.addListener(renderPopup);
 
 document.addEventListener('DOMContentLoaded', renderPopup, false);
 document.querySelector('#resetTimers').addEventListener('click', reset$Timers, false);
