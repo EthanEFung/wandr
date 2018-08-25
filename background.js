@@ -47,6 +47,16 @@ function handleIdleStateChange(newState) {
       t.stop();
     }
   } else {
+    if (Object.values(_timers).length === 0) {
+      chrome.storage.local.get(null, timers => {
+        timers.forEach(timer => addTimer(timer))
+      });
+    }
+
+    if (Object.values(_eventHandlers).length === 0) {
+      throw 'Event Handlers were garbage collected';
+    }
+
     chrome.windows.getAll({populate:true}, function(windows) {
       for (let window of windows) {
         window.tabs.forEach(tab => {
