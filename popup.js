@@ -9,7 +9,7 @@ for (let $button of document.getElementsByClassName('addDomainButton')) {
   $button.addEventListener('click', append$Domain);
 }
 
-function renderPopup(response) {
+function renderPopup() {
   chrome.storage.local.get(null, 
     result => {
       clear$Timers();
@@ -19,9 +19,9 @@ function renderPopup(response) {
   );
 
   function clear$Timers() {
-    const $timers = document.querySelector('#timers');
-    while ($timers.firstChild) {
-      $timers.removeChild($timers.firstChild);
+    const $timers = document.getElementById('timers');
+    while ($timers.firstElementChild) {
+      $timers.removeChild($timers.firstElementChild);
     } 
   }
   
@@ -72,6 +72,7 @@ function render$Timer(timer) {
     `${time.hours}:${time.minutes}:${time.seconds}`;
 
   document.querySelector('#timers').appendChild($timer);
+  console.log('rendered timer', $timer)
 
   function $menuFactory() {
     const $menu = document.createElement('div');
@@ -87,10 +88,9 @@ function render$Timer(timer) {
     $delete.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer });
+      chrome.runtime.sendMessage({ action: 'DELETE_TIMER', timer }, renderPopup);
     });
     $delete.textContent = 'delete';
-
     return $delete;
   }
 
