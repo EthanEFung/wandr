@@ -1,6 +1,7 @@
 document.querySelector('#editTimer').addEventListener('click', edit$Timer, false);
 document.querySelector('.cancelTimer').addEventListener('click', toggleTimersView, false);
 document.querySelector('.addDomainButton').addEventListener('click', append$Domain, false);
+document.querySelector('.addCurrentDomainButton').addEventListener('click', appendCurrentDomain, false);
 
 document.addEventListener('DOMContentLoaded', function(e) {
   e.preventDefault();
@@ -105,4 +106,30 @@ function append$Domain(e) {
     });
     return $cancel;
   }
+}
+
+function appendCurrentDomain(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  chrome.windows.getCurrent({populate: true}, function(window) {
+    window.tabs.forEach(tab => {
+      if (tab.active) {
+        const $domain = append$Domain(e);
+        $domain.querySelector('input').value = domainify(tab.url);
+      }
+    });
+  });
+  const $button = document.querySelector('.addCurrentDomainButton');
+  document.querySelector('#editTimerForm').removeChild($button);
+}
+
+function domainify(url) {
+  const domain = url.split('://')[1]
+  let result = '';
+  for (let char of domain) {
+    if (char === '/') break;
+    result += char;
+  }
+  return result;
 }

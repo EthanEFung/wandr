@@ -175,7 +175,7 @@ form label, form header {
   font-family: var(--header-font);
 }
 
-input, .addDomainButton {
+input, .addDomainButton, .addCurrentDomainButton {
   flex: 1;
   height: 30px;
   padding: 5px;
