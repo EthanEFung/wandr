@@ -72,7 +72,6 @@ function render$Timer(timer) {
     `${time.hours}:${time.minutes}:${time.seconds}`;
 
   document.querySelector('#timers').appendChild($timer);
-  console.log('rendered timer', $timer)
 
   function $menuFactory() {
     const $menu = document.createElement('div');
@@ -97,7 +96,6 @@ function render$Timer(timer) {
   function $editFactory() {
     const $edit = document.createElement('button');
     $edit.classList.add('editTimer');
-    $edit.addEventListener
 
     $edit.addEventListener('click', toggleEditTimerForm);
     $edit.textContent = 'edit';

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
   e.stopPropagation();
 
   chrome.storage.local.get(null, function(storage) {
+    console.log(storage)
     for (let i in storage) {
       if (storage[i].isEditing) {
         document.querySelector('#editTimerName').value = storage[i].name;
@@ -17,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
           $domain.querySelector('.editTimerDomain').value = domain;
         });
 
-        delete storage[i].isEditing;
         chrome.storage.local.set(storage);
       }
     }
