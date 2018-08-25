@@ -48,13 +48,11 @@ function handleIdleStateChange(newState) {
     }
   } else {
     if (Object.values(_timers).length === 0) {
+      console.log('garbage collected timers...Resetting')
       chrome.storage.local.get(null, timers => {
         timers.forEach(timer => addTimer(timer))
       });
-    }
-
-    if (Object.values(_eventHandlers).length === 0) {
-      throw 'Event Handlers were garbage collected';
+      setBrowserTimerHandlers()
     }
 
     chrome.windows.getAll({populate:true}, function(windows) {
@@ -88,7 +86,33 @@ function handleOnInstalled() {
     });
   });
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
-  addTimer({name: 'facebook', domains: ['facebook.com']});
+  addTimer({name: 'social media', 
+    domains: [
+      'facebook.com', 
+      'youtube.com', 
+      'instagram.com', 
+      'twitch.tv'
+    ]
+  });
+  addTimer({name: 'work', 
+    domains: [
+      'localhost', 
+      'codeship.com', 
+      'github.com/fullstacklabs',
+      'atlassian.net',
+      'docs.google.com',
+      'sheets.google.com',
+      'drive.google.com',
+    ]
+  });
+  addTimer({name: 'code',
+    domains: [
+      'hackerrank.com',
+      'freecodecamp.org',
+      'gist.github.com',
+      'codefights.com'
+    ]
+  });
   setBrowserTimerHandlers();
 
   chrome.tabs.onUpdated.addListener(handleSetIdleDetectionInterval);
