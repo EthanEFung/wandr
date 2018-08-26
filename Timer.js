@@ -14,16 +14,32 @@ class Timer {
     this.interval;
     this.domains = domains;
   }
-  save(cb=function(){}){
-    chrome.storage.local.set({
-      [this.name] : {
-        name: this.name,
-        domains: this.domains,
-        hours: this.hours,
-        minutes: this.minutes,
-        seconds: this.seconds        
+  save(){
+    chrome.storage.local.get(this.name, s => {
+      if (s[this.name] && this.name !== 'browser') {
+        chrome.storage.local.remove(this.name, () => {
+          chrome.storage.local.set({
+            [this.name] : {
+              name: this.name,
+              domains: this.domains,
+              hours: this.hours,
+              minutes: this.minutes,
+              seconds: this.seconds        
+            }
+          });
+        });
+      } else {
+        chrome.storage.local.set({
+          [this.name] : {
+            name: this.name,
+            domains: this.domains,
+            hours: this.hours,
+            minutes: this.minutes,
+            seconds: this.seconds        
+          }
+        });
       }
-    }, cb);
+    });
   }
   start() {
     this.isActive = true;

@@ -1,7 +1,11 @@
-document.querySelector('#editTimer').addEventListener('click', edit$Timer, false);
-document.querySelector('.cancelTimer').addEventListener('click', toggleTimersView, false);
-document.querySelector('.addDomainButton').addEventListener('click', append$Domain, false);
-document.querySelector('.addCurrentDomainButton').addEventListener('click', appendCurrentDomain, false);
+function $(selector) {
+  return document.querySelector(selector);
+}
+
+$('#editTimer').addEventListener('click', edit$Timer, false);
+$('.cancelTimer').addEventListener('click', toggleTimersView, false);
+$('.addDomainButton').addEventListener('click', append$Domain, false);
+$('.addCurrentDomainButton').addEventListener('click', appendCurrentDomain, false);
 
 document.addEventListener('DOMContentLoaded', function(e) {
   e.preventDefault();
@@ -50,7 +54,7 @@ function edit$Timer(e) {
     return;
   } else {
     e.preventDefault();
-    chrome.runtime.sendMessage(timer, () => {
+    chrome.runtime.sendMessage(timer, (storage) => {
       toggleTimersView(e);
     });
   }
@@ -60,27 +64,35 @@ function toggleTimersView(e) {
   e.preventDefault();
   e.stopPropagation();
   const name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
-  chrome.storage.local.get(name, function(storage) {
-    delete storage[name].isEditing;
-    chrome.storage.local.remove(name, function() {
-      chrome.storage.local.set(storage, function() {
-        chrome.storage.local.get(storage[name], function(timer) {
-          clearEditTimerDomains();
-          timer.domains.forEach(domain => {
-            const $domain = append$Domain(e);
-            $domain.querySelector('.editTimerDomain').value = domain;
+  const previousName = $('#editTimerName').getAttribute('previousName');
+  if (name === previousName) {
+    chrome.storage.local.get(name, function(storage) {
+      if (storage[name]) {
+        delete storage[name].isEditing;
+      }
+      chrome.storage.local.remove(name, function() {
+        chrome.storage.local.set(storage, function() {
+          chrome.storage.local.get(storage[name], function(timer) {
+            clearEditTimerDomains();
+            timer.domains.forEach(domain => {
+              const $domain = append$Domain(e);
+              $domain.querySelector('.editTimerDomain').value = domain;
+            });
           });
-          const $inputs = document.querySelector('#editTimerForm')
-            .querySelectorAll('input');
-          for (let $input of $inputs) {
-            $input.value = '';
-          }
-          chrome.browserAction.setPopup({popup: '/popup.html'});
-          window.location.href='/popup.html';
         });
       });
     });
-  });
+  }
+
+  $('#editTimerName').setAttribute('previousName', name);
+  const $inputs = document.querySelector('#editTimerForm')
+    .querySelectorAll('input');
+  for (let $input of $inputs) {
+    $input.value = '';
+  }
+  
+  chrome.browserAction.setPopup({popup: '/popup.html'});
+  window.location.href='/popup.html';
 }
 
 function append$Domain(e) {

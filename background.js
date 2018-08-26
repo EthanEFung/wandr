@@ -276,14 +276,15 @@ function addTimer(history) {
   return _timers[timer.name];
 }
 
-function deleteTimer({timer}) {
+function deleteTimer({timer}, cb) {
   _timers[timer.name].stop();
-
   chrome.storage.local.remove(timer.name);
-  chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
-  chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
-  chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
-
+  if (_eventHandlers[timer.name]) {
+    chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
+    chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
+    chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
+  }
+  
   delete _timers[timer.name];
   delete _eventHandlers[timer.name];
   return 'Timer Deleted';
@@ -382,18 +383,17 @@ function setDomainRegex(domains) {
 }
 
 function setTimer(timer) {
-  timer.save(() => {
-    chrome.windows.getCurrent({populate:true}, function(window) {
-      window.tabs.forEach(tab => {
-        if (
-          tab.active && 
-          setDomainRegex(timer.domains).test(tab.url) &&
-          !timer.isActive
-        ) {
-          timer.start();
-        }
-      });
-    })
+  timer.save();
+  chrome.windows.getCurrent({populate:true}, function(window) {
+    window.tabs.forEach(tab => {
+      if (
+        tab.active && 
+        setDomainRegex(timer.domains).test(tab.url) &&
+        !timer.isActive
+      ) {
+        timer.start();
+      }
+    });
   });
   _timers[timer.name] = timer;
 }

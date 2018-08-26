@@ -153,6 +153,11 @@ function update$TimerTimes() {
         minutes = timers[name].minutes;
         seconds = timers[name].seconds;
       }
+      if (
+        hours == 0 &&
+        minutes == 0 &&
+        seconds == 0
+      ) return;
       const time = {
         hours: hours < 10 ? `0${hours}` : hours,
         minutes: minutes < 10 ? `0${minutes}` : minutes,
