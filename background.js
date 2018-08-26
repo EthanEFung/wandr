@@ -11,23 +11,22 @@ chrome.idle.setDetectionInterval(60);
 chrome.idle.onStateChanged.addListener(handleIdleStateChange);
 
 function setBrowserTimerHandlers() {
+  if (_eventHandlers.browser) {
+    chrome.windows.onRemoved.removeListener(_eventHandlers.browser[0]);
+    chrome.storage.onChanged.removeListener(_eventHandlers.browser[1]);
+  }
+
   _eventHandlers.browser = [
     handleWindowRemove, 
     updateToolTip
   ];
 
-  if (chrome.windows.onRemoved.hasListener(handleWindowRemove)) {
-    chrome.windows.onRemoved.removeListener(handleWindowRemove);
-  }
-  if (chrome.storage.onChanged.hasListener(updateToolTip)) {
-    chrome.storage.onChanged.removeListener(updateToolTip);
-  }
   chrome.windows.onRemoved.addListener(handleWindowRemove);
   chrome.storage.onChanged.addListener(updateToolTip);
 }
  
 function setTimerHandlers(regex, timer) {
-  if (timer.name === 'browser') return;
+  if (timer.name === 'browser') return setBrowserTimerHandlers();
   if (
     Object.values(_eventHandlers).length > 0 &&
     _eventHandlers[timer.name] &&
@@ -94,8 +93,16 @@ function handleOnInstalled() {
       when: _alarmResetHour.getTime()
     });
   });
-  addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
-  addTimer({name: 'social-media', 
+  addTimer({
+    name: 'browser', 
+    domains: [
+      'http', 
+      'chrome', 
+      'https'
+    ]
+  });
+  addTimer({
+    name: 'social-media', 
     domains: [
       'facebook.com', 
       'youtube.com', 
@@ -103,7 +110,8 @@ function handleOnInstalled() {
       'twitch.tv'
     ]
   });
-  addTimer({name: 'work', 
+  addTimer({
+    name: 'work', 
     domains: [
       'localhost', 
       'codeship.com', 
@@ -114,7 +122,8 @@ function handleOnInstalled() {
       'drive.google.com',
     ]
   });
-  addTimer({name: 'code',
+  addTimer({
+    name: 'code',
     domains: [
       'hackerrank.com',
       'freecodecamp.org',
@@ -342,13 +351,27 @@ function generateReport() {
 
 function resetTimers() {
   for (let i in _timers) {
-    const t = _timers[i];
-    t.stop();
-    deleteTimer({timer: t});
-    if (t.name === 'browser') setBrowserTimerHandlers();
-    addTimer({name: t.name, domains: t.domains});
+    const timer = _timers[i];
+    timer.hours = timer.minutes = timer.seconds = 0;
+    setTimer(timer);
+    setTimerHandlers(setDomainRegex(timer.domains), timer);
   }
-  return 'Timers Reset'
+  chrome.windows.getAll({populate:true}, function(windows) {
+    for (let window of windows) {
+      window.tabs.forEach(tab => {
+        if (tab.active) {
+          console.log('for active tab', tab);
+          for (let i in _timers) {
+            const domains = setDomainRegex(_timers[i].domains);
+            if (domains.test(tab.url) && !_timers[i].isActive) {
+              _timers[i].start();
+            }
+          }
+        }
+      })
+    }
+  });
+  return 'Timers Reset';
 }
 
 function setDomainRegex(domains) {
