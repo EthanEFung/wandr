@@ -3,7 +3,7 @@ chrome.storage.onChanged.addListener(update$TimerTimes);
 document.addEventListener('DOMContentLoaded', renderPopup, false);
 document.querySelector('#resetTimers').addEventListener('click', reset$Timers, false);
 document.querySelector('#initTimer').addEventListener('click', toggleAddTimerForm, false);
-document.querySelector('#textReport').addEventListener('click', textTimersReport, false);
+// document.querySelector('#textReport').addEventListener('click', textTimersReport, false);
 
 for (let $button of document.getElementsByClassName('addDomainButton')) {
   $button.addEventListener('click', append$Domain);
@@ -122,9 +122,14 @@ function toggleEditTimerForm(e) {
   e.stopPropagation();
   const $timer = e.target.parentNode.parentNode;
   const name = $timer.querySelector('.timerTime').id;
-  
   chrome.storage.local.get(name, function(storage) {
-    storage[name].isEditing = true;
+    Object.values(storage).forEach(timer => {
+      if (timer.name === name) {
+        storage[name].isEditing = true;
+      } else {
+        delete storage[name].isEditing;
+      }
+    });
     chrome.storage.local.set(storage, function() {
       chrome.browserAction.setPopup({popup: '/popups/editTimerForm/editTimerForm.html'});
       window.location.href = '/popups/editTimerForm/editTimerForm.html';

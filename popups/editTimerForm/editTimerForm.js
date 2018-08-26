@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
   chrome.storage.local.get(null, function(storage) {
     for (let i in storage) {
       if (storage[i].isEditing) {
+        console.log('editing', storage[i]);
         document.querySelector('#editTimerName').value = storage[i].name;
         document.querySelector('#editTimerName').setAttribute('previousName', storage[i].name);
         clearEditTimerDomains();
@@ -17,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
           const $domain = append$Domain(e);
           $domain.querySelector('.editTimerDomain').value = domain;
         });
-
         chrome.storage.local.set(storage);
       }
     }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
       $domains.removeChild($domains.firstChild);
     }
   } 
-});
+}, false);
 
 function edit$Timer(e) {
   e.stopPropagation();
@@ -62,8 +62,8 @@ function edit$Timer(e) {
     for (let $input of $inputs) {
       $input.value = '';
     }
-    chrome.runtime.sendMessage(timer, response => {
-      toggleTimersView(e)
+    chrome.runtime.sendMessage(timer, () => {
+      toggleTimersView(e);
     });
   }
 }
@@ -71,8 +71,14 @@ function edit$Timer(e) {
 function toggleTimersView(e) {
   e.preventDefault();
   e.stopPropagation();
-  chrome.browserAction.setPopup({popup: '/popup.html'});
-  window.location.href='/popup.html';
+  const name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
+  chrome.storage.local.get(name, function(storage) {
+    const t = storage[name];
+    delete storage[name].isEditing;
+    chrome.storage.local.set(storage);
+    chrome.browserAction.setPopup({popup: '/popup.html'});
+    window.location.href='/popup.html';
+  });
 }
 
 function append$Domain(e) {

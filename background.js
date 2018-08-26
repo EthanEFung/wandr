@@ -86,7 +86,7 @@ function handleOnInstalled() {
     });
   });
   addTimer({name: 'browser', domains: ['http', 'chrome', 'https']})
-  addTimer({name: 'social media', 
+  addTimer({name: 'social-media', 
     domains: [
       'facebook.com', 
       'youtube.com', 
