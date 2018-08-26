@@ -293,11 +293,14 @@ function editTimer(history) {
   _timers[history.previousName].stop();
   chrome.storage.local.get(history.previousName, function(response) {
     const previousHistory = response[history.previousName];
-
-    chrome.windows.onFocusChanged.removeListener(_eventHandlers[history.previousName][0]);
-    chrome.tabs.onUpdated.removeListener(_eventHandlers[history.previousName][1]);
-    chrome.tabs.onActivated.removeListener(_eventHandlers[history.previousName][2]);
-
+    
+    if (_eventHandlers[history.previousName]) {
+      chrome.windows.onFocusChanged.removeListener(_eventHandlers[history.previousName][0]);
+      chrome.tabs.onUpdated.removeListener(_eventHandlers[history.previousName][1]);
+      chrome.tabs.onActivated.removeListener(_eventHandlers[history.previousName][2]);
+      delete _eventHandlers[history.previousName];
+    }
+    
     if (history.name === history.previousName) {
       const timer = _timers[history.name]
       timer.domains = history.domains;

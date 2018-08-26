@@ -61,23 +61,24 @@ function toggleTimersView(e) {
   e.stopPropagation();
   const name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
   chrome.storage.local.get(name, function(storage) {
-    const timer = storage[name];
-    chrome.storage.local.remove(storage[name] + ".isEditing", function() {
-      chrome.storage.local.get(storage[name], function(timer) {
-        clearEditTimerDomains();
-        timer.domains.forEach(domain => {
-          const $domain = append$Domain(e);
-          $domain.querySelector('.editTimerDomain').value = domain;
+    delete storage[name].isEditing;
+    chrome.storage.local.remove(name, function() {
+      chrome.storage.local.set(storage, function() {
+        chrome.storage.local.get(storage[name], function(timer) {
+          clearEditTimerDomains();
+          timer.domains.forEach(domain => {
+            const $domain = append$Domain(e);
+            $domain.querySelector('.editTimerDomain').value = domain;
+          });
+          const $inputs = document.querySelector('#editTimerForm')
+            .querySelectorAll('input');
+          for (let $input of $inputs) {
+            $input.value = '';
+          }
+          chrome.browserAction.setPopup({popup: '/popup.html'});
+          window.location.href='/popup.html';
         });
-        const $inputs = document.querySelector('#editTimerForm')
-          .querySelectorAll('input');
-        for (let $input of $inputs) {
-          $input.value = '';
-        }
-        chrome.browserAction.setPopup({popup: '/popup.html'});
-        window.location.href='/popup.html';
-      })
-      
+      });
     });
   });
 }
