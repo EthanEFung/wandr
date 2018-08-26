@@ -28,6 +28,15 @@ function setBrowserTimerHandlers() {
  
 function setTimerHandlers(regex, timer) {
   if (timer.name === 'browser') return;
+  if (
+    Object.values(_eventHandlers).length > 0 &&
+    _eventHandlers[timer.name] &&
+    chrome.windows.onFocusChanged.hasListener(_eventHandlers[timer.name][0])
+  ) {
+    chrome.windows.onFocusChanged.removeListener(_eventHandlers[timer.name][0]);
+    chrome.tabs.onUpdated.removeListener(_eventHandlers[timer.name][1]);
+    chrome.tabs.onActivated.removeListener(_eventHandlers[timer.name][2]);
+  }
   _eventHandlers[timer.name] = [
     handleWindowChange(regex, timer), 
     handleUpdatedTab(regex, timer),
@@ -193,8 +202,6 @@ function handleResetTimersOnAlarm(alarm) {
   }
 }
 
-
-
 function handleWindowRemove() {
   chrome.windows.getAll({}, function(windows) {
     if (windows.length === 0) {
@@ -287,6 +294,21 @@ function editTimer(history) {
       timer.domains = history.domains;
       setTimer(timer);
       setTimerHandlers(setDomainRegex(history.domains), timer);
+      chrome.windows.getAll({populate:true}, function(windows) {
+        for (let window of windows) {
+          window.tabs.forEach(tab => {
+            if (tab.active) {
+              console.log('for active tab', tab);
+              for (let i in _timers) {
+                const domains = setDomainRegex(_timers[i].domains);
+                if (domains.test(tab.url) && !_timers[i].isActive) {
+                  _timers[i].start();
+                }
+              }
+            }
+          })
+        }
+      });
     } else {
       deleteTimer({timer: previousHistory});
       addTimer({
@@ -334,17 +356,18 @@ function setDomainRegex(domains) {
 }
 
 function setTimer(timer) {
-  timer.save();
-  chrome.windows.getCurrent({populate:true}, function(window) {
-    window.tabs.forEach(tab => {
-      if (
-        tab.active && 
-        setDomainRegex(timer.domains).test(tab.url) &&
-        !timer.isActive
-      ) {
-        timer.start();
-      }
-    });
+  timer.save(() => {
+    chrome.windows.getCurrent({populate:true}, function(window) {
+      window.tabs.forEach(tab => {
+        if (
+          tab.active && 
+          setDomainRegex(timer.domains).test(tab.url) &&
+          !timer.isActive
+        ) {
+          timer.start();
+        }
+      });
+    })
   });
   _timers[timer.name] = timer;
 }

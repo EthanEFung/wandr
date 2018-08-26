@@ -33,6 +33,7 @@ function renderPopup() {
   
   function removeBrowserTimerHandlers() {
     const $browserTimerOptions = document.querySelector('#browserTimer .timerOptions');
+
     while ($browserTimerOptions.firstChild) {
       $browserTimerOptions.removeChild($browserTimerOptions.firstChild);
     }
@@ -123,6 +124,7 @@ function toggleEditTimerForm(e) {
   const $timer = e.target.parentNode.parentNode;
   const name = $timer.querySelector('.timerTime').id;
   chrome.storage.local.get(name, function(storage) {
+    console.log(storage);
     Object.values(storage).forEach(timer => {
       if (timer.name === name) {
         storage[name].isEditing = true;

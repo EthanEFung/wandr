@@ -22,13 +22,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
       }
     }
   });
-
-  function clearEditTimerDomains() {
-    const $domains = document.querySelector('#editTimerDomains');
-    while ($domains.firstChild) {
-      $domains.removeChild($domains.firstChild);
-    }
-  } 
 }, false);
 
 function edit$Timer(e) {
@@ -57,11 +50,6 @@ function edit$Timer(e) {
     return;
   } else {
     e.preventDefault();
-    const $inputs = document.querySelector('#editTimerForm')
-      .querySelectorAll('input');
-    for (let $input of $inputs) {
-      $input.value = '';
-    }
     chrome.runtime.sendMessage(timer, () => {
       toggleTimersView(e);
     });
@@ -73,11 +61,24 @@ function toggleTimersView(e) {
   e.stopPropagation();
   const name = document.querySelector('#editTimerName').value.split(/\s+/).join('-');
   chrome.storage.local.get(name, function(storage) {
-    const t = storage[name];
-    delete storage[name].isEditing;
-    chrome.storage.local.set(storage);
-    chrome.browserAction.setPopup({popup: '/popup.html'});
-    window.location.href='/popup.html';
+    const timer = storage[name];
+    chrome.storage.local.remove(storage[name] + ".isEditing", function() {
+      chrome.storage.local.get(storage[name], function(timer) {
+        clearEditTimerDomains();
+        timer.domains.forEach(domain => {
+          const $domain = append$Domain(e);
+          $domain.querySelector('.editTimerDomain').value = domain;
+        });
+        const $inputs = document.querySelector('#editTimerForm')
+          .querySelectorAll('input');
+        for (let $input of $inputs) {
+          $input.value = '';
+        }
+        chrome.browserAction.setPopup({popup: '/popup.html'});
+        window.location.href='/popup.html';
+      })
+      
+    });
   });
 }
 
@@ -139,3 +140,10 @@ function domainify(url) {
   }
   return result;
 }
+
+function clearEditTimerDomains() {
+  const $domains = document.querySelector('#editTimerDomains');
+  while ($domains.firstElementChild) {
+    $domains.removeChild($domains.firstElementChild);
+  }
+} 

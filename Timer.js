@@ -14,7 +14,7 @@ class Timer {
     this.interval;
     this.domains = domains;
   }
-  save(){
+  save(cb=function(){}){
     chrome.storage.local.set({
       [this.name] : {
         name: this.name,
@@ -23,7 +23,7 @@ class Timer {
         minutes: this.minutes,
         seconds: this.seconds        
       }
-    });
+    }, cb);
   }
   start() {
     this.isActive = true;
