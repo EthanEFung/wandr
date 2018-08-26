@@ -154,17 +154,18 @@ function update$TimerTimes() {
         seconds = timers[name].seconds;
       }
       if (
-        hours == 0 &&
-        minutes == 0 &&
-        seconds == 0
-      ) return;
-      const time = {
-        hours: hours < 10 ? `0${hours}` : hours,
-        minutes: minutes < 10 ? `0${minutes}` : minutes,
-        seconds: seconds < 10 ? `0${seconds}`: seconds,
-      };
-      $time.textContent = 
-        `${time.hours}:${time.minutes}:${time.seconds}`;
+        hours !== 0 ||
+        minutes !== 0 ||
+        seconds !== 0
+      ) {
+        const time = {
+          hours: hours < 10 ? `0${hours}` : hours,
+          minutes: minutes < 10 ? `0${minutes}` : minutes,
+          seconds: seconds < 10 ? `0${seconds}`: seconds,
+        };
+        $time.textContent = 
+          `${time.hours}:${time.minutes}:${time.seconds}`;
+      }
     }
   });
 }
