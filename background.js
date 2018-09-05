@@ -58,7 +58,9 @@ function handleIdleStateChange(newState) {
     if (Object.values(_timers).length === 0) {
       console.log('garbage collected timers...Resetting')
       chrome.storage.local.get(null, timers => {
-        timers.forEach(timer => addTimer(timer))
+        for (let i in timers) {
+          addTimer(timers[i]);
+        }
       });
       setBrowserTimerHandlers()
     }
